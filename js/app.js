@@ -86,7 +86,62 @@ let novoUsuario = {
 
 usuarios.push(novoUsuario);
 localStorage.setItem("usuarios", JSON.stringify(usuarios));
+let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
+let novoUsuario = {
+    nome: nomeDigitado,
+    email: emailDigitado,
+    senha: senhaDigitada,
+    tipo: tipoSelecionado // "admin", "financeiro", "producao", "estoquista", "usuario"
+};
+
+usuarios.push(novoUsuario);
+localStorage.setItem("usuarios", JSON.stringify(usuarios));
+    localStorage.setItem("usuarioLogado", JSON.stringify(usuarioEncontrado));
+    if (usuarioEncontrado.tipo === "admin") {
+    window.location.href = "admin.html";
+}
+else if (usuarioEncontrado.tipo === "financeiro") {
+    window.location.href = "financeiro.html";
+}
+else if (usuarioEncontrado.tipo === "producao") {
+    window.location.href = "producao.html";
+}
+else if (usuarioEncontrado.tipo === "estoquista") {
+    window.location.href = "estoque.html";
+}
+else {
+    window.location.href = "home.html";
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+if (!usuarioLogado) {
+    window.location.href = "index.html"; // não logado
+}
+
+if (usuarioLogado.tipo !== "financeiro" && usuarioLogado.tipo !== "admin") {
+    alert("Você não tem permissão para acessar o Financeiro.");
+    window.location.href = "home.html";
+}
+}let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+if (!usuarioLogado) {
+    window.location.href = "index.html";
+}
+
+if (usuarioLogado.tipo !== "producao" && usuarioLogado.tipo !== "admin") {
+    alert("Você não tem permissão para acessar Produção.");
+    window.location.href = "home.html";
+    let usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado"));
+
+if (!usuarioLogado) {
+    window.location.href = "index.html";
+}
+
+if (usuarioLogado.tipo !== "estoquista" && usuarioLogado.tipo !== "admin") {
+    alert("Você não tem permissão para acessar Estoque.");
+    window.location.href = "home.html";
+}
+}
 // ============================================================
 // LOGS DO SISTEMA
 // ============================================================
