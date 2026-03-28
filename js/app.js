@@ -115,11 +115,12 @@ function verificarPermissao(necessaria) {
         return;
     }
 
-    // ESTOQUISTA
-    if (necessaria === "estoquista" && user.permissao !== "estoquista") {
-        alert("Você não tem permissão para acessar Estoque.");
-        location.href = "home.html";
-        return;
+   // ESTOQUISTA
+if (necessaria === "estoquista" && user.permissao !== "estoquista") {
+    alert("Você não tem permissão para acessar a Área de Estoque.");
+    location.href = "home.html";
+    return;
+
     }
 
     // USUÁRIO COMUM
