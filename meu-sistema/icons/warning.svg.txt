@@ -1,3 +1,0 @@
-<svg width="24" height="24" fill="yellow" xmlns="http://www.w3.org/2000/svg">
-<path d="M1 21L12 2L23 21H1ZM12 16A2 2 0 1 0 12 20A2 2 0 1 0 12 16ZM11 10H13V14H11V10Z"/>
-</svg>

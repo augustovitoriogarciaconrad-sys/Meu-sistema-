@@ -1,3 +1,0 @@
-<svg width="24" height="24" fill="white" xmlns="http://www.w3.org/2000/svg">
-<path d="M2 10L12 3L22 10V21H2V10ZM6 12V19H10V12H6ZM14 12V19H18V12H14Z"/>
-</svg>
