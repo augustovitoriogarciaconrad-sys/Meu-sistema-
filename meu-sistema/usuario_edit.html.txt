@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuário</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="main">
+<h2>Editar Usuário</h2>
+
+<label>Nome</label>
+<input id="nome">
+
+<label>E-mail</label>
+<input id="email">
+
+<label>Senha</label>
+<input id="senha" type="password">
+
+<label>Permissão</label>
+<select id="permissao">
+    <option value="admin">Administrador</option>
+    <option value="usuario">Usuário</option>
+</select>
+
+<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-secondary" onclick="history.back()">Cancelar</button>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+const id = localStorage.getItem("editUsuario");
+const lista = listar("usuarios");
+const user = lista.find(x => x.id == id);
+
+nome.value = user.nome;
+email.value = user.email;
+senha.value = user.senha;
+permissao.value = user.permissao;
+
+function salvar() {
+    user.nome = nome.value;
+    user.email = email.value;
+    user.senha = senha.value;
+    user.permissao = permissao.value;
+
+    atualizar("usuarios", user.id, user);
+    registrarLog("Editou usuário", user.email);
+    location.href = "admin.html";
+}
+</script>
+
+</body>
+</html>

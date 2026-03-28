@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Produção</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="main">
+<h2>Registrar Produção</h2>
+
+<label>Produto</label>
+<select id="produto"></select>
+
+<label>Quantidade</label>
+<input id="quantidade" type="number">
+
+<label>Custo Total</label>
+<input id="custo" type="number">
+
+<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-secondary" onclick="history.back()">Cancelar</button>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+const produtos = listar("produtos");
+produtos.forEach(p => {
+    produto.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
+});
+
+function salvar() {
+    registrarProducao(
+        produto.value,
+        quantidade.value,
+        custo.value
+    );
+    location.href = "producao.html";
+}
+</script>
+
+</body>
+</html>
