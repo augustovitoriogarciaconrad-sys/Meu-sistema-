@@ -77,7 +77,15 @@ function verificarPermissao(necessaria) {
         alert("Você não tem permissão para acessar esta área.");
         location.href = "home.html";
     }
-}
+let novoUsuario = {
+    nome: nomeDigitado,
+    email: emailDigitado,
+    senha: senhaDigitada,
+    tipo: tipoSelecionado // "admin", "usuario", "gerente", etc.
+};
+
+usuarios.push(novoUsuario);
+localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
 // ============================================================
 // LOGS DO SISTEMA
@@ -154,7 +162,18 @@ function alterarSenhaUsuario(id, novaSenha) {
     user.senha = novaSenha;
     atualizar("usuarios", id, user);
     registrarLog("Alterou senha", user.email);
-}
+}function alterarSenha(email, novaSenha) {
+    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+
+    for (let i = 0; i < usuarios.length; i++) {
+        if (usuarios[i].email === email) {
+            usuarios[i].senha = novaSenha; // troca a senha
+        }
+    }
+
+    localStorage.setItem("usuarios", JSON.stringify(usuarios)); // salva
+}alterarSenha(emailDoUsuarioLogado, senhaNovaDigitada);
+    
 
 // ============================================================
 // INICIALIZAÇÃO AUTOMÁTICA
