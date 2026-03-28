@@ -32,60 +32,6 @@ function remover(chave, id) {
     salvar(chave, lista);
 }
 
-// ============================================================
-// USUÁRIOS E LOGIN
-// ============================================================
-
-function usuarioLogado() {
-    return JSON.parse(localStorage.getItem("logado") || "null");
-}
-
-function login(email, senha) {
-    const usuarios = listar("usuarios");
-
-    // cria usuário admin padrão se não existir
-    if (usuarios.length === 0) {
-        usuarios.push({
-            id: 1,
-            nome: "Administrador",
-            email: "admin@admin.com",
-            senha: "1234",
-            permissao: "admin"
-        });
-        salvar("usuarios", usuarios);
-    }
-
-    const user = usuarios.find(u => u.email === email && u.senha === senha);
-    if (!user) return false;
-
-    localStorage.setItem("logado", JSON.stringify(user));
-    registrarLog("Login", "Usuário entrou no sistema");
-    return true;
-}
-
-function logout() {
-    registrarLog("Logout", "Usuário saiu do sistema");
-    localStorage.removeItem("logado");
-    location.href = "index.html";
-}
-
-function verificarPermissao(necessaria) {
-    const user = usuarioLogado();
-    if (!user) return logout();
-
-    if (user.permissao !== "admin" && necessaria === "admin") {
-        alert("Você não tem permissão para acessar esta área.");
-        location.href = "home.html";
-    }
-let novoUsuario = {
-    nome: nomeDigitado,
-    email: emailDigitado,
-    senha: senhaDigitada,
-    tipo: tipoSelecionado // "admin", "usuario", "gerente", etc.
-};
-
-usuarios.push(novoUsuario);
-localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
 }
 }
@@ -106,7 +52,89 @@ function registrarLog(acao, detalhes) {
     });
     salvar("logs", logs);
 }
+// ============================================================
+// USUÁRIOS E LOGIN
+// ============================================================
 
+function usuarioLogado() {
+    return JSON.parse(localStorage.getItem("logado") || "null");
+}
+
+function login(email, senha) {
+    const usuarios = listar("usuarios");
+
+    // cria usuário admin padrão se não existir
+    if (usuarios.length === 0) {
+        usuarios.push({
+            id: 1,
+            nome: "Administrador",
+            email: "admin@admin.com",
+            senha: "1234",
+            permissao: "admin" // admin pode tudo
+        });
+        salvar("usuarios", usuarios);
+    }
+
+    const user = usuarios.find(u => u.email === email && u.senha === senha);
+    if (!user) return false;
+
+    localStorage.setItem("logado", JSON.stringify(user));
+    registrarLog("Login", "Usuário entrou no sistema");
+    return true;
+}
+
+// ============================================================
+// PERMISSÕES POR FUNÇÃO
+// ============================================================
+//
+// admin      → pode tudo
+// financeiro → só páginas e ações financeiras
+// producao   → só páginas e ações de produção
+// estoquista → só estoque
+// usuario    → acesso básico
+//
+
+function verificarPermissao(necessaria) {
+    const user = usuarioLogado();
+    if (!user) return logout();
+
+    // ADMIN sempre tem acesso
+    if (user.permissao === "admin") return;
+
+    // FINANCEIRO
+    if (necessaria === "financeiro" && user.permissao !== "financeiro") {
+        alert("Você não tem permissão para acessar o Financeiro.");
+        location.href = "home.html";
+        return;
+    }
+
+    // PRODUÇÃO
+    if (necessaria === "producao" && user.permissao !== "producao") {
+        alert("Você não tem permissão para acessar Produção.");
+        location.href = "home.html";
+        return;
+    }
+
+    // ESTOQUISTA
+    if (necessaria === "estoquista" && user.permissao !== "estoquista") {
+        alert("Você não tem permissão para acessar Estoque.");
+        location.href = "home.html";
+        return;
+    }
+
+    // USUÁRIO COMUM
+    if (necessaria === "usuario" && user.permissao !== "usuario") {
+        alert("Você não tem permissão para acessar esta área.");
+        location.href = "home.html";
+        return;
+    }
+}
+
+function logout() {
+    registrarLog("Logout", "Usuário saiu do sistema");
+    localStorage.removeItem("logado");
+    location.href = "index.html";
+}
 // ============================================================
 // PRODUTOS
 // ============================================================
