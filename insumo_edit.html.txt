@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Insumo</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="main">
+<h2>Editar Insumo</h2>
+
+<label>Nome</label>
+<input id="nome">
+
+<label>Categoria</label>
+<input id="categoria">
+
+<label>Quantidade</label>
+<input id="quantidade" type="number">
+
+<label>Validade</label>
+<input id="validade" type="date">
+
+<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-secondary" onclick="history.back()">Cancelar</button>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+const id = localStorage.getItem("editInsumo");
+const lista = listar("insumos");
+const ins = lista.find(x => x.id == id);
+
+nome.value = ins.nome;
+categoria.value = ins.categoria;
+quantidade.value = ins.quantidade;
+validade.value = ins.validade;
+
+function salvar() {
+    ins.nome = nome.value;
+    ins.categoria = categoria.value;
+    ins.quantidade = quantidade.value;
+    ins.validade = validade.value;
+
+    atualizar("insumos", ins.id, ins);
+    registrarLog("Editou insumo", ins.nome);
+    location.href = "insumos.html";
+}
+</script>
+
+</body>
+</html>

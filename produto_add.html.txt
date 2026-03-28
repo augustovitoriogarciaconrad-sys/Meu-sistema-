@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Produto</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="main">
+<h2>Novo Produto</h2>
+
+<label>Nome</label>
+<input id="nome">
+
+<label>Categoria</label>
+<input id="categoria">
+
+<label>Preço</label>
+<input id="preco" type="number">
+
+<label>Estoque Mínimo</label>
+<input id="estoqueMinimo" type="number">
+
+<button class="btn-primary" onclick="salvarProduto()">Salvar</button>
+<button class="btn-secondary" onclick="history.back()">Cancelar</button>
+
+</div>
+
+<script src="js/app.js"></script>
+<script>
+function salvarProduto() {
+    criarProduto(
+        nome.value,
+        categoria.value,
+        preco.value,
+        estoqueMinimo.value
+    );
+    location.href = "produtos.html";
+}
+</script>
+
+</body>
+</html>
