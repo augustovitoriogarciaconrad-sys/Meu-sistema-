@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estoque</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js"></script>
+</head>
+<body onload="verificarPermissao('estoquista')">
+
+    <h1>Área de Estoque</h1>
+    <p>Somente usuários com permissão <b>estoquista</b> ou <b>admin</b> podem acessar.</p>
+
+    <div class="box">
+        <h2>Funções do Estoquista</h2>
+        <ul>
+            <li>Adicionar itens ao estoque</li>
+            <li>Atualizar quantidades</li>
+            <li>Verificar estoque mínimo</li>
+        </ul>
+    </div>
+
+    <button onclick="logout()">Sair</button>
+
+</body>
+</html>

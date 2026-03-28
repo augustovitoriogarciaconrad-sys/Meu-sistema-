@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Financeiro</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js"></script>
+</head>
+<body onload="verificarPermissao('financeiro')">
+
+    <h1>Área Financeira</h1>
+    <p>Somente usuários com permissão <b>financeiro</b> ou <b>admin</b> podem acessar.</p>
+
+    <div class="box">
+        <h2>Funções do Financeiro</h2>
+        <ul>
+            <li>Controle de custos</li>
+            <li>Relatórios financeiros</li>
+            <li>Pagamentos e recebimentos</li>
+        </ul>
+    </div>
+
+    <button onclick="logout()">Sair</button>
+
+</body>
+</html>

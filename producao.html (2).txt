@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Produção</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/app.js"></script>
+</head>
+<body onload="verificarPermissao('producao')">
+
+    <h1>Área de Produção</h1>
+    <p>Somente usuários com permissão <b>producao</b> ou <b>admin</b> podem acessar.</p>
+
+    <div class="box">
+        <h2>Funções da Produção</h2>
+        <ul>
+            <li>Registrar produção</li>
+            <li>Gerenciar ordens de produção</li>
+            <li>Controle de custos de produção</li>
+        </ul>
+    </div>
+
+    <button onclick="logout()">Sair</button>
+
+</body>
+</html>
