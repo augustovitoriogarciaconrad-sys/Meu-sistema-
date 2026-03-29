@@ -24,6 +24,9 @@
 <select id="permissao">
     <option value="admin">Administrador</option>
     <option value="usuario">Usuário</option>
+    <option value="financeiro">Financeiro</option>
+    <option value="producao">Produção</option>
+    <option value="estoquista">Estoquista</option>
 </select>
 
 <button class="btn-primary" onclick="salvar()">Salvar</button>
@@ -34,15 +37,29 @@
 <script src="js/app.js"></script>
 <script>
 const id = localStorage.getItem("editUsuario");
-const lista = listar("usuarios");
-const user = lista.find(x => x.id == id);
+const usuarios = listar("usuarios");
+const user = usuarios.find(x => x.id == id);
 
+// Se o usuário não existir, volta para admin
+if (!user) {
+    alert("Usuário não encontrado.");
+    location.href = "admin.html";
+}
+
+// Preenche os campos
 nome.value = user.nome;
 email.value = user.email;
 senha.value = user.senha;
 permissao.value = user.permissao;
 
 function salvar() {
+    // Verifica duplicação de e-mail
+    const existe = usuarios.some(u => u.email === email.value && u.id != user.id);
+    if (existe) {
+        alert("Já existe um usuário com este e-mail.");
+        return;
+    }
+
     user.nome = nome.value;
     user.email = email.value;
     user.senha = senha.value;
@@ -50,6 +67,8 @@ function salvar() {
 
     atualizar("usuarios", user.id, user);
     registrarLog("Editou usuário", user.email);
+
+    alert("Usuário atualizado com sucesso!");
     location.href = "admin.html";
 }
 </script>
