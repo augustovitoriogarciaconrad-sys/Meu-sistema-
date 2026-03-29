@@ -29,14 +29,14 @@
     <option value="estoquista">Estoquista</option>
 </select>
 
-<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-primary" onclick="salvarUsuario()">Salvar</button>
 <button class="btn-secondary" onclick="history.back()">Cancelar</button>
 
 </div>
 
 <script src="js/app.js"></script>
 <script>
-function salvar() {
+function salvarUsuario() {
     const nome = document.getElementById("nome").value;
     const email = document.getElementById("email").value;
     const senha = document.getElementById("senha").value;
