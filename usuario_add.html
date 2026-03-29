@@ -24,6 +24,9 @@
 <select id="permissao">
     <option value="admin">Administrador</option>
     <option value="usuario">Usuário</option>
+    <option value="financeiro">Financeiro</option>
+    <option value="producao">Produção</option>
+    <option value="estoquista">Estoquista</option>
 </select>
 
 <button class="btn-primary" onclick="salvar()">Salvar</button>
@@ -34,17 +37,19 @@
 <script src="js/app.js"></script>
 <script>
 function salvar() {
-    adicionar("usuarios", {
-        nome: nome.value,
-        email: email.value,
-        senha: senha.value,
-        permissao: permissao.value
-    });
-    registrarLog("Criou usuário", email.value);
-    location.href = "admin.html";
+    const nome = document.getElementById("nome").value;
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+    const permissao = document.getElementById("permissao").value;
+
+    if (criarUsuario(nome, email, senha, permissao)) {
+        alert("Usuário cadastrado com sucesso!");
+        location.href = "admin.html";
+    }
 }
 </script>
 
 </body>
 </html>
+
 
