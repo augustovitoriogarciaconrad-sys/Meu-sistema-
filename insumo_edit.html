@@ -18,7 +18,7 @@
 <input id="categoria">
 
 <label>Quantidade</label>
-<input id="quantidade" type="number">
+<input id="quantidade" type="number" min="0">
 
 <label>Validade</label>
 <input id="validade" type="date">
@@ -29,24 +29,60 @@
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
+// BLOQUEIO — SOMENTE ADMIN E USUÁRIO PODEM EDITAR INSUMOS
+const user = usuarioLogado();
+if (!user || !["admin", "usuario"].includes(user.permissao)) {
+    alert("Acesso não permitido para sua permissão.");
+    location.href = "inicio.html";
+}
+
+// CARREGAR INSUMO
 const id = localStorage.getItem("editInsumo");
 const lista = listar("insumos");
 const ins = lista.find(x => x.id == id);
 
+// Se não existir, volta
+if (!ins) {
+    alert("Insumo não encontrado.");
+    location.href = "insumos.html";
+}
+
+// Preenche os campos
 nome.value = ins.nome;
 categoria.value = ins.categoria;
 quantidade.value = ins.quantidade;
 validade.value = ins.validade;
 
+// SALVAR ALTERAÇÕES
 function salvar() {
-    ins.nome = nome.value;
-    ins.categoria = categoria.value;
-    ins.quantidade = quantidade.value;
-    ins.validade = validade.value;
+    const nomeInsumo = nome.value.trim();
+    const categoriaInsumo = categoria.value.trim();
+    const qtd = Number(quantidade.value);
+    const validadeInsumo = validade.value;
+
+    // Validações
+    if (!nomeInsumo || !categoriaInsumo || !validadeInsumo) {
+        alert("Preencha todos os campos.");
+        return;
+    }
+
+    if (isNaN(qtd) || qtd < 0) {
+        alert("Informe uma quantidade válida.");
+        return;
+    }
+
+    // Atualiza dados
+    ins.nome = nomeInsumo;
+    ins.categoria = categoriaInsumo;
+    ins.quantidade = qtd;
+    ins.validade = validadeInsumo;
 
     atualizar("insumos", ins.id, ins);
     registrarLog("Editou insumo", ins.nome);
+
+    alert("Insumo atualizado com sucesso!");
     location.href = "insumos.html";
 }
 </script>
