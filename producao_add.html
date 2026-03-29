@@ -15,10 +15,10 @@
 <select id="produto"></select>
 
 <label>Quantidade</label>
-<input id="quantidade" type="number">
+<input id="quantidade" type="number" min="1">
 
 <label>Custo Total</label>
-<input id="custo" type="number">
+<input id="custo" type="number" min="0" step="0.01">
 
 <button class="btn-primary" onclick="salvar()">Salvar</button>
 <button class="btn-secondary" onclick="history.back()">Cancelar</button>
@@ -26,18 +26,49 @@
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
+// BLOQUEIO — SOMENTE PRODUÇÃO OU ADMIN
+const user = usuarioLogado();
+if (!user || (user.permissao !== "producao" && user.permissao !== "admin")) {
+    alert("Acesso não permitido para sua permissão.");
+    location.href = "inicio.html";
+}
+
+// CARREGAR PRODUTOS
 const produtos = listar("produtos");
+const selectProduto = document.getElementById("produto");
+
 produtos.forEach(p => {
-    produto.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
+    selectProduto.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
 });
 
+// SALVAR PRODUÇÃO
 function salvar() {
-    registrarProducao(
-        produto.value,
-        quantidade.value,
-        custo.value
-    );
+    const produtoId = produto.value;
+    const qtd = Number(quantidade.value);
+    const custoTotal = Number(custo.value);
+
+    // Validações
+    if (!produtoId) {
+        alert("Selecione um produto.");
+        return;
+    }
+
+    if (!qtd || qtd <= 0) {
+        alert("Informe uma quantidade válida.");
+        return;
+    }
+
+    if (!custoTotal || custoTotal <= 0) {
+        alert("Informe um custo válido.");
+        return;
+    }
+
+    registrarProducao(produtoId, qtd, custoTotal);
+    registrarLog("Registrou produção", `Produto ID ${produtoId}, Qtd ${qtd}`);
+
+    alert("Produção registrada com sucesso!");
     location.href = "producao.html";
 }
 </script>
