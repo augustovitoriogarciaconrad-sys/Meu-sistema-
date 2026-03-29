@@ -70,17 +70,22 @@ function login(email, senha) {
             nome: "Administrador",
             email: "admin@admin.com",
             senha: "1234",
-            permissao: "admin" // admin pode tudo
+            permissao: "admin"
         });
         salvar("usuarios", usuarios);
     }
 
     const user = usuarios.find(u => u.email === email && u.senha === senha);
-    if (!user) return false;
+    if (!user) {
+        alert("E-mail ou senha incorretos.");
+        return false;
+    }
 
     localStorage.setItem("logado", JSON.stringify(user));
     registrarLog("Login", "Usuário entrou no sistema");
     return true;
+}
+
 }
 
 // ============================================================
