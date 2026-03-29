@@ -29,7 +29,7 @@
     <option value="estoquista">Estoquista</option>
 </select>
 
-<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-primary" onclick="salvarEdicao()">Salvar</button>
 <button class="btn-secondary" onclick="history.back()">Cancelar</button>
 
 </div>
@@ -52,7 +52,7 @@ email.value = user.email;
 senha.value = user.senha;
 permissao.value = user.permissao;
 
-function salvar() {
+function salvarEdicao() {
 
     // Validação de campos vazios
     if (!nome.value.trim() || !email.value.trim() || !senha.value.trim()) {
