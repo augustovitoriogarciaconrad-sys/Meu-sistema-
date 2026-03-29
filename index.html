@@ -21,13 +21,23 @@
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
-async function fazerLogin() {
-    const ok = await login(email.value, senha.value);
-    if (!ok) return alert("Credenciais inválidas.");
+function fazerLogin() {
+    const emailDigitado = document.getElementById("email").value;
+    const senhaDigitada = document.getElementById("senha").value;
+
+    const ok = login(emailDigitado, senhaDigitada);
+
+    if (!ok) {
+        alert("Credenciais inválidas.");
+        return;
+    }
+
     window.location.href = "home.html";
 }
 </script>
 
 </body>
 </html>
+
