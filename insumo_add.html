@@ -18,7 +18,7 @@
 <input id="categoria">
 
 <label>Quantidade</label>
-<input id="quantidade" type="number">
+<input id="quantidade" type="number" min="0">
 
 <label>Validade</label>
 <input id="validade" type="date">
@@ -29,14 +29,38 @@
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
+// BLOQUEIO — SOMENTE ADMIN E USUÁRIO PODEM CADASTRAR INSUMOS
+const user = usuarioLogado();
+if (!user || !["admin", "usuario"].includes(user.permissao)) {
+    alert("Acesso não permitido para sua permissão.");
+    location.href = "inicio.html";
+}
+
+// SALVAR INSUMO
 function salvarInsumo() {
-    criarInsumo(
-        nome.value,
-        categoria.value,
-        quantidade.value,
-        validade.value
-    );
+    const nomeInsumo = nome.value.trim();
+    const categoriaInsumo = categoria.value.trim();
+    const qtd = Number(quantidade.value);
+    const validadeInsumo = validade.value;
+
+    // Validações
+    if (!nomeInsumo || !categoriaInsumo || !validadeInsumo) {
+        alert("Preencha todos os campos.");
+        return;
+    }
+
+    if (isNaN(qtd) || qtd < 0) {
+        alert("Informe uma quantidade válida.");
+        return;
+    }
+
+    // Criar insumo
+    criarInsumo(nomeInsumo, categoriaInsumo, qtd, validadeInsumo);
+    registrarLog("Criou insumo", nomeInsumo);
+
+    alert("Insumo cadastrado com sucesso!");
     location.href = "insumos.html";
 }
 </script>
