@@ -32,26 +32,6 @@ function remover(chave, id) {
     salvar(chave, lista);
 }
 
-
-}
-}
-// ============================================================
-// LOGS DO SISTEMA
-// ============================================================
-
-function registrarLog(acao, detalhes) {
-    const user = usuarioLogado();
-    if (!user) return;
-
-    const logs = listar("logs");
-    logs.push({
-        usuario: user.email,
-        acao,
-        detalhes,
-        data: new Date().toLocaleString()
-    });
-    salvar("logs", logs);
-}
 // ============================================================
 // USUÁRIOS E LOGIN
 // ============================================================
@@ -86,6 +66,10 @@ function login(email, senha) {
     return true;
 }
 
+function logout() {
+    registrarLog("Logout", "Usuário saiu do sistema");
+    localStorage.removeItem("logado");
+    location.href = "index.html";
 }
 
 // ============================================================
@@ -120,12 +104,11 @@ function verificarPermissao(necessaria) {
         return;
     }
 
-   // ESTOQUISTA
-if (necessaria === "estoquista" && user.permissao !== "estoquista") {
-    alert("Você não tem permissão para acessar a Área de Estoque.");
-    location.href = "home.html";
-    return;
-
+    // ESTOQUISTA
+    if (necessaria === "estoquista" && user.permissao !== "estoquista") {
+        alert("Você não tem permissão para acessar a Área de Estoque.");
+        location.href = "home.html";
+        return;
     }
 
     // USUÁRIO COMUM
@@ -136,11 +119,24 @@ if (necessaria === "estoquista" && user.permissao !== "estoquista") {
     }
 }
 
-function logout() {
-    registrarLog("Logout", "Usuário saiu do sistema");
-    localStorage.removeItem("logado");
-    location.href = "index.html";
+// ============================================================
+// LOGS DO SISTEMA
+// ============================================================
+
+function registrarLog(acao, detalhes) {
+    const user = usuarioLogado();
+    if (!user) return;
+
+    const logs = listar("logs");
+    logs.push({
+        usuario: user.email,
+        acao,
+        detalhes,
+        data: new Date().toLocaleString()
+    });
+    salvar("logs", logs);
 }
+
 // ============================================================
 // PRODUTOS
 // ============================================================
@@ -198,24 +194,24 @@ function alterarSenhaUsuario(id, novaSenha) {
     user.senha = novaSenha;
     atualizar("usuarios", id, user);
     registrarLog("Alterou senha", user.email);
-}function alterarSenha(email, novaSenha) {
-    let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+}
+
+function alterarSenha(email, novaSenha) {
+    let usuarios = listar("usuarios");
 
     for (let i = 0; i < usuarios.length; i++) {
         if (usuarios[i].email === email) {
-            usuarios[i].senha = novaSenha; // troca a senha
+            usuarios[i].senha = novaSenha;
         }
     }
 
-    localStorage.setItem("usuarios", JSON.stringify(usuarios)); // salva
-}alterarSenha(emailDoUsuarioLogado, senhaNovaDigitada);
-    
+    salvar("usuarios", usuarios);
+}
 
 // ============================================================
 // INICIALIZAÇÃO AUTOMÁTICA
 // ============================================================
 
-// cria tabelas se não existirem
 if (!localStorage.getItem("produtos")) salvar("produtos", []);
 if (!localStorage.getItem("insumos")) salvar("insumos", []);
 if (!localStorage.getItem("producao")) salvar("producao", []);
