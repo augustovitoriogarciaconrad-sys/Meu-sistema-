@@ -57,9 +57,18 @@
 <script src="js/app.js"></script>
 <script>
 function carregarUsuarios() {
-    const usuarios = listar("usuarios");
+    let usuarios = listar("usuarios");
+
+    // Ordena por nome
+    usuarios.sort((a, b) => a.nome.localeCompare(b.nome));
+
     const tabela = document.getElementById("listaUsuarios");
     tabela.innerHTML = "";
+
+    if (usuarios.length === 0) {
+        tabela.innerHTML = `<tr><td colspan="4">Nenhum usuário cadastrado.</td></tr>`;
+        return;
+    }
 
     usuarios.forEach(u => {
         tabela.innerHTML += `
@@ -81,6 +90,27 @@ function editar(id) {
 }
 
 function excluirUsuario(id) {
+    const logado = usuarioLogado();
+    const usuarios = listar("usuarios");
+    const user = usuarios.find(u => u.id == id);
+
+    // Impede excluir o admin padrão
+    if (user.email === "admin@admin.com") {
+        alert("O usuário administrador padrão não pode ser excluído.");
+        return;
+    }
+
+    // Impede excluir o próprio usuário logado
+    if (logado && logado.id == id) {
+        alert("Você não pode excluir o próprio usuário enquanto estiver logado.");
+        return;
+    }
+
+    // Confirmação
+    if (!confirm(`Tem certeza que deseja excluir o usuário "${user.nome}"?`)) {
+        return;
+    }
+
     remover("usuarios", id);
     registrarLog("Excluiu usuário", "ID " + id);
     carregarUsuarios();
@@ -108,3 +138,4 @@ carregarLogs();
 
 </body>
 </html>
+
