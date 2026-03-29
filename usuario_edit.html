@@ -15,7 +15,7 @@
 <input id="nome">
 
 <label>E-mail</label>
-<input id="email">
+<input id="email" type="email">
 
 <label>Senha</label>
 <input id="senha" type="password">
@@ -35,14 +35,29 @@
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
+// BLOQUEIO — SOMENTE ADMIN PODE ACESSAR ESTA PÁGINA
+const logado = usuarioLogado();
+if (!logado || logado.permissao !== "admin") {
+    alert("Apenas administradores podem acessar esta área.");
+    location.href = "inicio.html";
+}
+
+// CARREGAR USUÁRIO A SER EDITADO
 const id = localStorage.getItem("editUsuario");
 let usuarios = listar("usuarios");
 let user = usuarios.find(x => x.id == id);
 
-// Se o usuário não existir, volta para admin
+// Se não existir, volta
 if (!user) {
     alert("Usuário não encontrado.");
+    location.href = "admin.html";
+}
+
+// Impede editar o admin padrão
+if (user.email === "admin@admin.com") {
+    alert("O usuário administrador padrão não pode ser editado.");
     location.href = "admin.html";
 }
 
@@ -54,16 +69,14 @@ permissao.value = user.permissao;
 
 function salvarEdicao() {
 
-    // Validação de campos vazios
+    // Validação
     if (!nome.value.trim() || !email.value.trim() || !senha.value.trim()) {
         alert("Preencha todos os campos.");
         return;
     }
 
-    // Recarrega lista atualizada
+    // Impede duplicação de e-mail
     usuarios = listar("usuarios");
-
-    // Verifica duplicação de e-mail
     const existe = usuarios.some(u => u.email === email.value && u.id != user.id);
     if (existe) {
         alert("Já existe um usuário com este e-mail.");
