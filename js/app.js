@@ -73,6 +73,34 @@ function logout() {
 }
 
 // ============================================================
+// CRIAÇÃO DE USUÁRIOS (ADICIONADO)
+// ============================================================
+
+function criarUsuario(nome, email, senha, permissao) {
+    const usuarios = listar("usuarios");
+
+    // impede duplicação de e-mail
+    if (usuarios.some(u => u.email === email)) {
+        alert("Já existe um usuário com este e-mail.");
+        return false;
+    }
+
+    const novo = {
+        id: Date.now(),
+        nome,
+        email,
+        senha,
+        permissao
+    };
+
+    usuarios.push(novo);
+    salvar("usuarios", usuarios);
+
+    registrarLog("Criou usuário", email);
+    return true;
+}
+
+// ============================================================
 // PERMISSÕES POR FUNÇÃO
 // ============================================================
 //
@@ -87,31 +115,26 @@ function verificarPermissao(necessaria) {
     const user = usuarioLogado();
     if (!user) return logout();
 
-    // ADMIN sempre tem acesso
     if (user.permissao === "admin") return;
 
-    // FINANCEIRO
     if (necessaria === "financeiro" && user.permissao !== "financeiro") {
         alert("Você não tem permissão para acessar o Financeiro.");
         location.href = "home.html";
         return;
     }
 
-    // PRODUÇÃO
     if (necessaria === "producao" && user.permissao !== "producao") {
         alert("Você não tem permissão para acessar Produção.");
         location.href = "home.html";
         return;
     }
 
-    // ESTOQUISTA
     if (necessaria === "estoquista" && user.permissao !== "estoquista") {
         alert("Você não tem permissão para acessar a Área de Estoque.");
         location.href = "home.html";
         return;
     }
 
-    // USUÁRIO COMUM
     if (necessaria === "usuario" && user.permissao !== "usuario") {
         alert("Você não tem permissão para acessar esta área.");
         location.href = "home.html";
