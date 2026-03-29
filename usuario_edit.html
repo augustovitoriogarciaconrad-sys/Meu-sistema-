@@ -37,8 +37,8 @@
 <script src="js/app.js"></script>
 <script>
 const id = localStorage.getItem("editUsuario");
-const usuarios = listar("usuarios");
-const user = usuarios.find(x => x.id == id);
+let usuarios = listar("usuarios");
+let user = usuarios.find(x => x.id == id);
 
 // Se o usuário não existir, volta para admin
 if (!user) {
@@ -53,6 +53,16 @@ senha.value = user.senha;
 permissao.value = user.permissao;
 
 function salvar() {
+
+    // Validação de campos vazios
+    if (!nome.value.trim() || !email.value.trim() || !senha.value.trim()) {
+        alert("Preencha todos os campos.");
+        return;
+    }
+
+    // Recarrega lista atualizada
+    usuarios = listar("usuarios");
+
     // Verifica duplicação de e-mail
     const existe = usuarios.some(u => u.email === email.value && u.id != user.id);
     if (existe) {
@@ -60,6 +70,7 @@ function salvar() {
         return;
     }
 
+    // Atualiza dados
     user.nome = nome.value;
     user.email = email.value;
     user.senha = senha.value;
