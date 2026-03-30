@@ -29,27 +29,56 @@
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
 function salvarProduto() {
 
-    // Validação básica
-    if (!nome.value.trim() || !categoria.value.trim() || !preco.value || !estoqueMinimo.value) {
-        alert("Preencha todos os campos.");
+    const nomeProduto = nome.value.trim();
+    const categoriaProduto = categoria.value.trim();
+    const precoProduto = Number(preco.value);
+    const estoqueMin = Number(estoqueMinimo.value);
+
+    // VALIDAÇÃO COMPLETA
+    if (!nomeProduto) {
+        alert("Digite o nome do produto.");
         return;
     }
 
-    // Impede valores negativos
-    if (preco.value < 0 || estoqueMinimo.value < 0) {
-        alert("Preço e estoque mínimo não podem ser negativos.");
+    if (!categoriaProduto) {
+        alert("Digite a categoria do produto.");
         return;
     }
 
-    // Cria o produto
+    if (isNaN(precoProduto) || precoProduto < 0) {
+        alert("Informe um preço válido (não pode ser negativo).");
+        return;
+    }
+
+    if (isNaN(estoqueMin) || estoqueMin < 0) {
+        alert("Informe um estoque mínimo válido (não pode ser negativo).");
+        return;
+    }
+
+    // IMPEDIR PRODUTOS DUPLICADOS
+    const produtos = listar("produtos");
+    if (produtos.some(p => p.nome.toLowerCase() === nomeProduto.toLowerCase())) {
+        alert("Já existe um produto com esse nome.");
+        return;
+    }
+
+    // CRIAR PRODUTO
     criarProduto(
-        nome.value,
-        categoria.value,
-        Number(preco.value),
-        Number(estoqueMinimo.value)
+        nomeProduto,
+        categoriaProduto,
+        precoProduto,
+        estoqueMin
+    );
+
+    // AUDITORIA
+    const user = usuarioLogado();
+    registrarLog(
+        `Produto criado por ${user.nome}`,
+        `Nome: ${nomeProduto}, Categoria: ${categoriaProduto}, Preço: ${precoProduto}, Estoque Mínimo: ${estoqueMin}`
     );
 
     alert("Produto cadastrado com sucesso!");
