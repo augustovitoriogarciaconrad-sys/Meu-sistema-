@@ -18,23 +18,31 @@
     <input id="senha" type="password">
 
     <button class="btn-primary" style="width:100%;margin-top:20px;" onclick="fazerLogin()">Entrar</button>
+
+    <div id="msg" style="margin-top:15px;"></div>
 </div>
 
 <script src="js/app.js"></script>
 
 <script>
 function fazerLogin() {
-    const emailDigitado = document.getElementById("email").value;
-    const senhaDigitada = document.getElementById("senha").value;
+    const emailDigitado = email.value.trim();
+    const senhaDigitada = senha.value.trim();
+
+    // Validação básica
+    if (!emailDigitado || !senhaDigitada) {
+        msg.innerHTML = "<div class='alert alert-warning'>Preencha todos os campos.</div>";
+        return;
+    }
 
     const ok = login(emailDigitado, senhaDigitada);
 
     if (!ok) {
-        alert("Credenciais inválidas.");
+        msg.innerHTML = "<div class='alert alert-danger'>Credenciais inválidas.</div>";
         return;
     }
 
-    // Redireciona para a nova página inicial
+    // Redireciona para a página inicial
     window.location.href = "inicio.html";
 }
 </script>
