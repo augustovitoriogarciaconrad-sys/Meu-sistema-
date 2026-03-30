@@ -167,9 +167,7 @@
 <script src="js/app.js"></script>
 
 <script>
-/* ============================
-   🔐 SOMENTE ADMIN
-============================ */
+// SOMENTE ADMIN
 const user = usuarioLogado();
 if (!user || user.permissao !== "admin") {
     alert("Apenas administradores podem acessar esta página.");
@@ -181,9 +179,7 @@ let logsFiltrados = [...logs];
 let paginaAtual = 1;
 const porPagina = 15;
 
-/* ============================
-   🔥 ALERTAS INTELIGENTES
-============================ */
+/* ALERTAS */
 function gerarAlertas() {
     const alertas = [];
     const produtos = listar("produtos");
@@ -195,39 +191,23 @@ function gerarAlertas() {
         p.estoqueAtual <= p.estoqueMinimo * 1.2
     );
 
-    if (ruptura.length > 0)
-        alertas.push(`⚠️ ${ruptura.length} produto(s) em RUPTURA TOTAL.`);
-
-    if (abaixoMin.length > 0)
-        alertas.push(`⚠️ ${abaixoMin.length} produto(s) abaixo do estoque mínimo.`);
-
-    if (critico.length > 0)
-        alertas.push(`⚠️ ${critico.length} produto(s) com estoque crítico.`);
+    if (ruptura.length > 0) alertas.push(`⚠️ ${ruptura.length} produto(s) em RUPTURA TOTAL.`);
+    if (abaixoMin.length > 0) alertas.push(`⚠️ ${abaixoMin.length} produto(s) abaixo do estoque mínimo.`);
+    if (critico.length > 0) alertas.push(`⚠️ ${critico.length} produto(s) com estoque crítico.`);
 
     const hoje = new Date().toLocaleDateString("pt-BR");
     const logsHoje = logs.filter(l => l.data.startsWith(hoje));
 
-    if (logsHoje.length > 50)
-        alertas.push(`⚠️ Atividade incomum detectada: ${logsHoje.length} ações hoje.`);
+    if (logsHoje.length > 50) alertas.push(`⚠️ Atividade incomum detectada: ${logsHoje.length} ações hoje.`);
 
     const edicoesHoje = logsHoje.filter(l => l.acao.includes("editado")).length;
-    if (edicoesHoje > 20)
-        alertas.push(`⚠️ Muitas edições hoje (${edicoesHoje}). Verifique possíveis erros.`);
+    if (edicoesHoje > 20) alertas.push(`⚠️ Muitas edições hoje (${edicoesHoje}).`);
 
     const ul = document.getElementById("listaAlertas");
-    ul.innerHTML = "";
-
-    if (alertas.length === 0) {
-        ul.innerHTML = "<li>Nenhum alerta no momento.</li>";
-        return;
-    }
-
-    alertas.forEach(a => ul.innerHTML += `<li>${a}</li>`);
+    ul.innerHTML = alertas.length === 0 ? "<li>Nenhum alerta no momento.</li>" : alertas.map(a => `<li>${a}</li>`).join("");
 }
 
-/* ============================
-   📦 ESTATÍSTICAS DE ESTOQUE
-============================ */
+/* ESTATÍSTICAS DE ESTOQUE */
 function gerarEstatisticasEstoque() {
     const produtos = listar("produtos");
 
@@ -247,9 +227,7 @@ function gerarEstatisticasEstoque() {
     `;
 }
 
-/* ============================
-   📈 GRÁFICO DE LINHA (14 dias)
-============================ */
+/* GRÁFICO DE LINHA */
 function gerarGraficoLinha() {
     const grafico = document.getElementById("graficoLinha");
     grafico.innerHTML = "";
@@ -266,50 +244,31 @@ function gerarGraficoLinha() {
         valores.push(logs.filter(l => l.data.startsWith(diaStr)).length);
     }
 
-    let maxValor = Math.max(...valores);
-    if (maxValor === 0) maxValor = 1;
+    let maxValor = Math.max(...valores) || 1;
 
     for (let i = 0; i < dias.length; i++) {
-        const ponto = document.createElement("div");
-        ponto.style.position = "absolute";
-        ponto.style.width = "8px";
-        ponto.style.height = "8px";
-        ponto.style.background = "#e67e22";
-        ponto.style.borderRadius = "50%";
-
         const x = i * 40 + 20;
         const y = 250 - (valores[i] / maxValor) * 200;
 
-        ponto.style.left = x + "px";
-        ponto.style.top = y + "px";
-
+        const ponto = document.createElement("div");
+        ponto.style = `position:absolute;width:8px;height:8px;background:#e67e22;border-radius:50%;left:${x}px;top:${y}px`;
         grafico.appendChild(ponto);
 
         if (i > 0) {
-            const linha = document.createElement("div");
-            linha.style.position = "absolute";
-            linha.style.height = "2px";
-            linha.style.background = "#e67e22";
-
             const x1 = (i - 1) * 40 + 20;
             const y1 = 250 - (valores[i - 1] / maxValor) * 200;
 
             const largura = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2);
-            linha.style.width = largura + "px";
-
             const angulo = Math.atan2(y - y1, x - x1) * 180 / Math.PI;
-            linha.style.transform = `rotate(${angulo}deg)`;
-            linha.style.left = x1 + "px";
-            linha.style.top = y1 + "px";
 
+            const linha = document.createElement("div");
+            linha.style = `position:absolute;height:2px;background:#e67e22;width:${largura}px;left:${x1}px;top:${y1}px;transform:rotate(${angulo}deg)`;
             grafico.appendChild(linha);
         }
     }
 }
 
-/* ============================
-   🥧 GRÁFICO DE PIZZA
-============================ */
+/* GRÁFICO DE PIZZA */
 function gerarGraficoPizza() {
     const canvas = document.getElementById("pizza");
     const ctx = canvas.getContext("2d");
@@ -321,8 +280,8 @@ function gerarGraficoPizza() {
 
     const dados = [criados, editados, excluidos, logins];
     const cores = ["#2ecc71", "#3498db", "#e74c3c", "#9b59b6"];
+    const total = dados.reduce((a, b) => a + b, 0) || 1;
 
-    const total = dados.reduce((a, b) => a + b, 0);
     let inicio = 0;
 
     for (let i = 0; i < dados.length; i++) {
@@ -338,20 +297,13 @@ function gerarGraficoPizza() {
     }
 }
 
-/* ============================
-   📋 LISTAGEM DE LOGS
-============================ */
+/* LISTAGEM DE LOGS */
 function carregarFiltros() {
     const usuarios = [...new Set(logs.map(l => l.usuario))];
     const acoes = [...new Set(logs.map(l => l.acao))];
 
-    usuarios.forEach(u => {
-        filtroUsuario.innerHTML += `<option value="${u}">${u}</option>`;
-    });
-
-    acoes.forEach(a => {
-        filtroAcao.innerHTML += `<option value="${a}">${a}</option>`;
-    });
+    usuarios.forEach(u => filtroUsuario.innerHTML += `<option value="${u}">${u}</option>`);
+    acoes.forEach(a => filtroAcao.innerHTML += `<option value="${a}">${a}</option>`);
 }
 
 function listarLogs() {
@@ -361,9 +313,7 @@ function listarLogs() {
     const inicio = (paginaAtual - 1) * porPagina;
     const fim = inicio + porPagina;
 
-    const pagina = logsFiltrados.slice(inicio, fim);
-
-    pagina.forEach(log => {
+    logsFiltrados.slice(inicio, fim).forEach(log => {
         const classe =
             log.acao.toLowerCase().includes("criado") ? "log-criou" :
             log.acao.toLowerCase().includes("editado") ? "log-editou" :
@@ -446,5 +396,26 @@ function ordenar(campo) {
 
 function exportarCSV() {
     let csv = "data;usuario;acao;detalhes\n";
+    logsFiltrados.forEach(l => {
+        csv += `${l.data};${l.usuario};${l.acao};${l.detalhes}\n`;
+    });
 
-    logsFiltrados.for
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "logs.csv";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+/* EXECUTAR */
+carregarFiltros();
+listarLogs();
+gerarAlertas();
+gerarEstatisticasEstoque();
+gerarGraficoLinha();
+gerarGraficoPizza();
+</script>
