@@ -18,35 +18,49 @@
 <input id="categoria">
 
 <label>Preço</label>
-<input id="preco" type="number">
+<input id="preco" type="number" min="0" step="0.01">
 
 <label>Estoque Mínimo</label>
-<input id="estoqueMinimo" type="number">
+<input id="estoqueMinimo" type="number" min="0">
 
-<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-primary" onclick="salvarEdicao()">Salvar</button>
 <button class="btn-secondary" onclick="history.back()">Cancelar</button>
 
 </div>
 
 <script src="js/app.js"></script>
+
 <script>
-const id = localStorage.getItem("editProduto");
-const lista = listar("produtos");
-const prod = lista.find(x => x.id == id);
+// PEGAR ID DA URL
+const params = new URLSearchParams(location.search);
+const id = Number(params.get("id"));
 
-nome.value = prod.nome;
-categoria.value = prod.categoria;
-preco.value = prod.preco;
-estoqueMinimo.value = prod.estoqueMinimo;
+// CARREGAR PRODUTO
+let produtos = listar("produtos");
+let produto = produtos.find(p => p.id === id);
 
-function salvar() {
-    prod.nome = nome.value;
-    prod.categoria = categoria.value;
-    prod.preco = preco.value;
-    prod.estoqueMinimo = estoqueMinimo.value;
+if (!produto) {
+    alert("Produto não encontrado!");
+    location.href = "produtos.html";
+}
 
-    atualizar("produtos", prod.id, prod);
-    registrarLog("Editou produto", prod.nome);
+// PREENCHER CAMPOS
+nome.value = produto.nome;
+categoria.value = produto.categoria;
+preco.value = produto.preco;
+estoqueMinimo.value = produto.estoqueMinimo;
+
+// SALVAR ALTERAÇÕES
+function salvarEdicao() {
+
+    produto.nome = nome.value.trim();
+    produto.categoria = categoria.value.trim();
+    produto.preco = Number(preco.value);
+    produto.estoqueMinimo = Number(estoqueMinimo.value);
+
+    salvar("produtos", produtos);
+
+    alert("Produto atualizado com sucesso!");
     location.href = "produtos.html";
 }
 </script>
