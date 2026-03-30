@@ -44,6 +44,14 @@ if (!produto) {
     location.href = "produtos.html";
 }
 
+// SALVAR VALORES ANTIGOS PARA AUDITORIA
+const antigo = {
+    nome: produto.nome,
+    categoria: produto.categoria,
+    preco: produto.preco,
+    estoqueMinimo: produto.estoqueMinimo
+};
+
 // PREENCHER CAMPOS
 nome.value = produto.nome;
 categoria.value = produto.categoria;
@@ -53,12 +61,44 @@ estoqueMinimo.value = produto.estoqueMinimo;
 // SALVAR ALTERAÇÕES
 function salvarEdicao() {
 
+    // VALIDAÇÃO COMPLETA
+    if (!nome.value.trim()) return alert("O nome não pode ficar vazio.");
+    if (!categoria.value.trim()) return alert("A categoria não pode ficar vazia.");
+
+    if (preco.value === "" || Number(preco.value) < 0)
+        return alert("Preço inválido.");
+
+    if (estoqueMinimo.value === "" || Number(estoqueMinimo.value) < 0)
+        return alert("Estoque mínimo inválido.");
+
+    // APLICAR ALTERAÇÕES
     produto.nome = nome.value.trim();
     produto.categoria = categoria.value.trim();
     produto.preco = Number(preco.value);
     produto.estoqueMinimo = Number(estoqueMinimo.value);
 
     salvar("produtos", produtos);
+
+    // REGISTRO DE AUDITORIA
+    const user = usuarioLogado();
+    const alteracoes = [];
+
+    if (antigo.nome !== produto.nome)
+        alteracoes.push(`Nome: "${antigo.nome}" → "${produto.nome}"`);
+
+    if (antigo.categoria !== produto.categoria)
+        alteracoes.push(`Categoria: "${antigo.categoria}" → "${produto.categoria}"`);
+
+    if (antigo.preco !== produto.preco)
+        alteracoes.push(`Preço: ${antigo.preco} → ${produto.preco}`);
+
+    if (antigo.estoqueMinimo !== produto.estoqueMinimo)
+        alteracoes.push(`Estoque Mínimo: ${antigo.estoqueMinimo} → ${produto.estoqueMinimo}`);
+
+    registrarLog(
+        `Produto editado por ${user.nome}`,
+        alteracoes.length > 0 ? alteracoes.join(" | ") : "Nenhuma alteração feita"
+    );
 
     alert("Produto atualizado com sucesso!");
     location.href = "produtos.html";
