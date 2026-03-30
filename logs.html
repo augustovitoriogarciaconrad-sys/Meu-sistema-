@@ -36,6 +36,37 @@
     margin: 5px;
     padding: 5px 10px;
 }
+
+/* Cards */
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    width: 200px;
+    display: inline-block;
+    margin: 10px;
+    vertical-align: top;
+}
+.card h3 { margin: 0; font-size: 16px; }
+.card p { font-size: 22px; margin: 5px 0 0 0; font-weight: bold; }
+
+/* Gráficos */
+.grafico {
+    width: 100%;
+    height: 260px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    margin-top: 20px;
+    position: relative;
+}
+.barra {
+    position: absolute;
+    bottom: 0;
+    width: 30px;
+    background: #4a90e2;
+    border-radius: 5px 5px 0 0;
+}
 </style>
 
 </head>
@@ -59,7 +90,26 @@
     <h2>Logs do Sistema</h2>
 </header>
 
+<!-- ALERTAS -->
+<div id="alertas" class="card" style="width:95%; background:#fff3cd; border-color:#ffeeba;">
+    <h3>Alertas do Sistema</h3>
+    <ul id="listaAlertas"></ul>
+</div>
+
+<!-- ESTATÍSTICAS DE ESTOQUE -->
+<h3>Estatísticas de Estoque</h3>
+<div id="cardsEstoque"></div>
+
+<!-- GRÁFICO DE LINHA -->
+<h3>Atividade dos últimos 14 dias</h3>
+<div class="grafico" id="graficoLinha"></div>
+
+<!-- GRÁFICO DE PIZZA -->
+<h3>Proporção de Ações</h3>
+<canvas id="pizza" width="300" height="150" style="background:#f5f5f5; border-radius:10px;"></canvas>
+
 <!-- FILTROS -->
+<h3>Logs Detalhados</h3>
 <div class="filtros">
 
     <label>Usuário</label>
@@ -117,7 +167,9 @@
 <script src="js/app.js"></script>
 
 <script>
-// SOMENTE ADMIN
+/* ============================
+   🔐 SOMENTE ADMIN
+============================ */
 const user = usuarioLogado();
 if (!user || user.permissao !== "admin") {
     alert("Apenas administradores podem acessar esta página.");
@@ -129,7 +181,166 @@ let logsFiltrados = [...logs];
 let paginaAtual = 1;
 const porPagina = 15;
 
-// CARREGAR FILTROS DINÂMICOS
+/* ============================
+   🔥 ALERTAS INTELIGENTES
+============================ */
+function gerarAlertas() {
+    const alertas = [];
+    const produtos = listar("produtos");
+
+    const ruptura = produtos.filter(p => p.estoqueAtual === 0);
+    const abaixoMin = produtos.filter(p => p.estoqueAtual < p.estoqueMinimo);
+    const critico = produtos.filter(p =>
+        p.estoqueAtual > 0 &&
+        p.estoqueAtual <= p.estoqueMinimo * 1.2
+    );
+
+    if (ruptura.length > 0)
+        alertas.push(`⚠️ ${ruptura.length} produto(s) em RUPTURA TOTAL.`);
+
+    if (abaixoMin.length > 0)
+        alertas.push(`⚠️ ${abaixoMin.length} produto(s) abaixo do estoque mínimo.`);
+
+    if (critico.length > 0)
+        alertas.push(`⚠️ ${critico.length} produto(s) com estoque crítico.`);
+
+    const hoje = new Date().toLocaleDateString("pt-BR");
+    const logsHoje = logs.filter(l => l.data.startsWith(hoje));
+
+    if (logsHoje.length > 50)
+        alertas.push(`⚠️ Atividade incomum detectada: ${logsHoje.length} ações hoje.`);
+
+    const edicoesHoje = logsHoje.filter(l => l.acao.includes("editado")).length;
+    if (edicoesHoje > 20)
+        alertas.push(`⚠️ Muitas edições hoje (${edicoesHoje}). Verifique possíveis erros.`);
+
+    const ul = document.getElementById("listaAlertas");
+    ul.innerHTML = "";
+
+    if (alertas.length === 0) {
+        ul.innerHTML = "<li>Nenhum alerta no momento.</li>";
+        return;
+    }
+
+    alertas.forEach(a => ul.innerHTML += `<li>${a}</li>`);
+}
+
+/* ============================
+   📦 ESTATÍSTICAS DE ESTOQUE
+============================ */
+function gerarEstatisticasEstoque() {
+    const produtos = listar("produtos");
+
+    const ruptura = produtos.filter(p => p.estoqueAtual === 0).length;
+    const abaixo = produtos.filter(p => p.estoqueAtual < p.estoqueMinimo).length;
+    const critico = produtos.filter(p =>
+        p.estoqueAtual > 0 &&
+        p.estoqueAtual <= p.estoqueMinimo * 1.2
+    ).length;
+    const saudavel = produtos.filter(p => p.estoqueAtual > p.estoqueMinimo * 1.2).length;
+
+    document.getElementById("cardsEstoque").innerHTML = `
+        <div class="card"><h3>Ruptura</h3><p>${ruptura}</p></div>
+        <div class="card"><h3>Abaixo do mínimo</h3><p>${abaixo}</p></div>
+        <div class="card"><h3>Crítico</h3><p>${critico}</p></div>
+        <div class="card"><h3>Saudável</h3><p>${saudavel}</p></div>
+    `;
+}
+
+/* ============================
+   📈 GRÁFICO DE LINHA (14 dias)
+============================ */
+function gerarGraficoLinha() {
+    const grafico = document.getElementById("graficoLinha");
+    grafico.innerHTML = "";
+
+    const dias = [];
+    const valores = [];
+
+    for (let i = 13; i >= 0; i--) {
+        const dia = new Date();
+        dia.setDate(dia.getDate() - i);
+        const diaStr = dia.toLocaleDateString("pt-BR");
+
+        dias.push(diaStr);
+        valores.push(logs.filter(l => l.data.startsWith(diaStr)).length);
+    }
+
+    let maxValor = Math.max(...valores);
+    if (maxValor === 0) maxValor = 1;
+
+    for (let i = 0; i < dias.length; i++) {
+        const ponto = document.createElement("div");
+        ponto.style.position = "absolute";
+        ponto.style.width = "8px";
+        ponto.style.height = "8px";
+        ponto.style.background = "#e67e22";
+        ponto.style.borderRadius = "50%";
+
+        const x = i * 40 + 20;
+        const y = 250 - (valores[i] / maxValor) * 200;
+
+        ponto.style.left = x + "px";
+        ponto.style.top = y + "px";
+
+        grafico.appendChild(ponto);
+
+        if (i > 0) {
+            const linha = document.createElement("div");
+            linha.style.position = "absolute";
+            linha.style.height = "2px";
+            linha.style.background = "#e67e22";
+
+            const x1 = (i - 1) * 40 + 20;
+            const y1 = 250 - (valores[i - 1] / maxValor) * 200;
+
+            const largura = Math.sqrt((x - x1) ** 2 + (y - y1) ** 2);
+            linha.style.width = largura + "px";
+
+            const angulo = Math.atan2(y - y1, x - x1) * 180 / Math.PI;
+            linha.style.transform = `rotate(${angulo}deg)`;
+            linha.style.left = x1 + "px";
+            linha.style.top = y1 + "px";
+
+            grafico.appendChild(linha);
+        }
+    }
+}
+
+/* ============================
+   🥧 GRÁFICO DE PIZZA
+============================ */
+function gerarGraficoPizza() {
+    const canvas = document.getElementById("pizza");
+    const ctx = canvas.getContext("2d");
+
+    const criados = logs.filter(l => l.acao.includes("criado")).length;
+    const editados = logs.filter(l => l.acao.includes("editado")).length;
+    const excluidos = logs.filter(l => l.acao.includes("excluído")).length;
+    const logins = logs.filter(l => l.acao.toLowerCase().includes("login")).length;
+
+    const dados = [criados, editados, excluidos, logins];
+    const cores = ["#2ecc71", "#3498db", "#e74c3c", "#9b59b6"];
+
+    const total = dados.reduce((a, b) => a + b, 0);
+    let inicio = 0;
+
+    for (let i = 0; i < dados.length; i++) {
+        const angulo = (dados[i] / total) * 2 * Math.PI;
+
+        ctx.beginPath();
+        ctx.moveTo(150, 75);
+        ctx.arc(150, 75, 70, inicio, inicio + angulo);
+        ctx.fillStyle = cores[i];
+        ctx.fill();
+
+        inicio += angulo;
+    }
+}
+
+/* ============================
+   📋 LISTAGEM DE LOGS
+============================ */
 function carregarFiltros() {
     const usuarios = [...new Set(logs.map(l => l.usuario))];
     const acoes = [...new Set(logs.map(l => l.acao))];
@@ -143,7 +354,6 @@ function carregarFiltros() {
     });
 }
 
-// LISTAR LOGS COM PAGINAÇÃO
 function listarLogs() {
     const tabela = document.getElementById("listaLogs");
     tabela.innerHTML = "";
@@ -173,7 +383,6 @@ function listarLogs() {
     contador.innerText = `Mostrando ${logsFiltrados.length} registros`;
 }
 
-// POPUP
 function verDetalhes(texto) {
     popupConteudo.innerText = texto;
     popupBg.style.display = "flex";
@@ -182,7 +391,6 @@ function fecharPopup() {
     popupBg.style.display = "none";
 }
 
-// PAGINAÇÃO
 function atualizarPaginacao() {
     const totalPaginas = Math.ceil(logsFiltrados.length / porPagina);
     const pag = document.getElementById("paginacao");
@@ -197,7 +405,6 @@ function irPara(num) {
     listarLogs();
 }
 
-// FILTROS
 function aplicarFiltros() {
     logsFiltrados = [...logs];
 
@@ -232,34 +439,12 @@ function limparFiltros() {
     listarLogs();
 }
 
-// ORDENAR
 function ordenar(campo) {
     logsFiltrados.sort((a, b) => a[campo].localeCompare(b[campo]));
     listarLogs();
 }
 
-// EXPORTAR CSV
 function exportarCSV() {
     let csv = "data;usuario;acao;detalhes\n";
 
-    logsFiltrados.forEach(l => {
-        csv += `${l.data};${l.usuario};${l.acao};${l.detalhes}\n`;
-    });
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "logs.csv";
-    a.click();
-
-    URL.revokeObjectURL(url);
-}
-
-carregarFiltros();
-listarLogs();
-</script>
-
-</body>
-</html>
+    logsFiltrados.for
