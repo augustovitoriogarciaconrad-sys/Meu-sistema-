@@ -59,7 +59,7 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-// LISTAGEM DO ESTOQUE
+// LISTAGEM DO ESTOQUE — CORRIGIDO
 function carregarEstoque() {
     const produtos = listar("produtos");
     const producao = listar("producao");
@@ -68,8 +68,10 @@ function carregarEstoque() {
     tabela.innerHTML = "";
 
     produtos.forEach(p => {
+
+        // AGORA FILTRA PELO NOME DO PRODUTO
         const total = producao
-            .filter(x => x.produtoId == p.id)
+            .filter(x => x.produto === p.nome)
             .reduce((s, x) => s + Number(x.quantidade), 0);
 
         let status = "";
