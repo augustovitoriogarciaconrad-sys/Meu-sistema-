@@ -25,7 +25,7 @@
     <h2>Produtos</h2>
 </header>
 
-<button class="btn-primary" onclick="location.href='produtos_add.html'">Adicionar Produto</button>
+<button class="btn-primary" onclick="location.href='produto_add.html'">Adicionar Produto</button>
 
 <table>
 <thead>
@@ -34,6 +34,7 @@
     <th>Categoria</th>
     <th>Preço</th>
     <th>Estoque Mínimo</th>
+    <th>Ações</th>
 </tr>
 </thead>
 <tbody id="listaProdutos"></tbody>
@@ -44,16 +45,13 @@
 <script src="js/app.js"></script>
 
 <script>
-// PERMISSÃO — ADMIN, USUÁRIO, ESTOQUISTA, PRODUÇÃO
 const user = usuarioLogado();
 if (!user) {
     alert("Você precisa estar logado.");
     location.href = "index.html";
 }
 
-// ESCONDER ITENS DO MENU
 const permitidas = areasPermitidas();
-
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
 if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
 if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
@@ -61,7 +59,6 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-// LISTAR PRODUTOS
 function carregarProdutos() {
     const produtos = listar("produtos");
     const tabela = document.getElementById("listaProdutos");
@@ -74,8 +71,27 @@ function carregarProdutos() {
             <td>${p.categoria}</td>
             <td>R$ ${Number(p.preco).toFixed(2)}</td>
             <td>${p.estoqueMinimo}</td>
+            <td>
+                <button class="btn-small" onclick="editar(${p.id})">Editar</button>
+                <button class="btn-small btn-danger" onclick="excluir(${p.id})">Excluir</button>
+            </td>
         </tr>`;
     });
+}
+
+function editar(id) {
+    location.href = "produto_edit.html?id=" + id;
+}
+
+function excluir(id) {
+    if (!confirm("Tem certeza que deseja excluir este produto?")) return;
+
+    let produtos = listar("produtos");
+    produtos = produtos.filter(p => p.id !== id);
+    salvar("produtos", produtos);
+
+    alert("Produto excluído!");
+    carregarProdutos();
 }
 
 carregarProdutos();
