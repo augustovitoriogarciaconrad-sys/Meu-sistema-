@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logs do Sistema</title>
+    <link rel="stylesheet" href="css/style.css">
+
+<style>
+/* Estilo do popup */
+.popup-bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #00000088;
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+.popup {
+    background: white;
+    padding: 20px;
+    width: 400px;
+    border-radius: 10px;
+}
+.popup h3 { margin-top: 0; }
+
+/* Cores por tipo de ação */
+.log-criou { color: green; font-weight: bold; }
+.log-editou { color: blue; font-weight: bold; }
+.log-excluiu { color: red; font-weight: bold; }
+.log-outros { color: gray; font-weight: bold; }
+
+/* Paginação */
+.paginacao button {
+    margin: 5px;
+    padding: 5px 10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="item" onclick="location.href='inicio.html'"><img class="icon" src="icons/home.svg"><span>Início</span></div>
+    <div class="item" onclick="location.href='producao.html'"><img class="icon" src="icons/box.svg"><span>Produção</span></div>
+    <div class="item" onclick="location.href='estoque_produtos.html'"><img class="icon" src="icons/warehouse.svg"><span>Estoque</span></div>
+    <div class="item" onclick="location.href='produtos.html'"><img class="icon" src="icons/tag.svg"><span>Produtos</span></div>
+    <div class="item" onclick="location.href='insumos.html'"><img class="icon" src="icons/layers.svg"><span>Insumos</span></div>
+    <div class="item" onclick="location.href='relatorios.html'"><img class="icon" src="icons/chart.svg"><span>Relatórios</span></div>
+    <div class="item active" onclick="location.href='logs.html'"><img class="icon" src="icons/list.svg"><span>Logs</span></div>
+    <div class="item" onclick="location.href='admin.html'"><img class="icon" src="icons/settings.svg"><span>Administração</span></div>
+    <div class="item" onclick="location.href='perfil.html'"><img class="icon" src="icons/user.svg"><span>Perfil</span></div>
+    <div class="item" onclick="logout()"><img class="icon" src="icons/logout.svg"><span>Sair</span></div>
+</div>
+
+<div class="main">
+<header>
+    <h2>Logs do Sistema</h2>
+</header>
+
+<!-- FILTROS -->
+<div class="filtros">
+
+    <label>Usuário</label>
+    <select id="filtroUsuario">
+        <option value="">Todos</option>
+    </select>
+
+    <label>Ação</label>
+    <select id="filtroAcao">
+        <option value="">Todas</option>
+    </select>
+
+    <label>Buscar texto</label>
+    <input id="filtroTexto" placeholder="Ex: editou, criou, produto...">
+
+    <label>Data inicial</label>
+    <input type="date" id="dataInicio">
+
+    <label>Data final</label>
+    <input type="date" id="dataFim">
+
+    <button class="btn-primary" onclick="aplicarFiltros()">Filtrar</button>
+    <button class="btn-secondary" onclick="limparFiltros()">Limpar</button>
+    <button class="btn-primary" onclick="exportarCSV()">Exportar CSV</button>
+
+</div>
+
+<p id="contador"></p>
+
+<table>
+<thead>
+<tr>
+    <th onclick="ordenar('data')">Data</th>
+    <th onclick="ordenar('usuario')">Usuário</th>
+    <th onclick="ordenar('acao')">Ação</th>
+    <th>Detalhes</th>
+</tr>
+</thead>
+<tbody id="listaLogs"></tbody>
+</table>
+
+<div class="paginacao" id="paginacao"></div>
+
+</div>
+
+<!-- POPUP -->
+<div class="popup-bg" id="popupBg">
+    <div class="popup">
+        <h3>Detalhes do Log</h3>
+        <p id="popupConteudo"></p>
+        <button onclick="fecharPopup()">Fechar</button>
+    </div>
+</div>
+
+<script src="js/app.js"></script>
+
+<script>
+// SOMENTE ADMIN
+const user = usuarioLogado();
+if (!user || user.permissao !== "admin") {
+    alert("Apenas administradores podem acessar esta página.");
+    location.href = "inicio.html";
+}
+
+let logs = listar("logs");
+let logsFiltrados = [...logs];
+let paginaAtual = 1;
+const porPagina = 15;
+
+// CARREGAR FILTROS DINÂMICOS
+function carregarFiltros() {
+    const usuarios = [...new Set(logs.map(l => l.usuario))];
+    const acoes = [...new Set(logs.map(l => l.acao))];
+
+    usuarios.forEach(u => {
+        filtroUsuario.innerHTML += `<option value="${u}">${u}</option>`;
+    });
+
+    acoes.forEach(a => {
+        filtroAcao.innerHTML += `<option value="${a}">${a}</option>`;
+    });
+}
+
+// LISTAR LOGS COM PAGINAÇÃO
+function listarLogs() {
+    const tabela = document.getElementById("listaLogs");
+    tabela.innerHTML = "";
+
+    const inicio = (paginaAtual - 1) * porPagina;
+    const fim = inicio + porPagina;
+
+    const pagina = logsFiltrados.slice(inicio, fim);
+
+    pagina.forEach(log => {
+        const classe =
+            log.acao.toLowerCase().includes("criado") ? "log-criou" :
+            log.acao.toLowerCase().includes("editado") ? "log-editou" :
+            log.acao.toLowerCase().includes("excluído") ? "log-excluiu" :
+            "log-outros";
+
+        tabela.innerHTML += `
+        <tr>
+            <td>${log.data}</td>
+            <td>${log.usuario}</td>
+            <td class="${classe}">${log.acao}</td>
+            <td><button onclick='verDetalhes(${JSON.stringify(log.detalhes)})'>Ver detalhes</button></td>
+        </tr>`;
+    });
+
+    atualizarPaginacao();
+    contador.innerText = `Mostrando ${logsFiltrados.length} registros`;
+}
+
+// POPUP
+function verDetalhes(texto) {
+    popupConteudo.innerText = texto;
+    popupBg.style.display = "flex";
+}
+function fecharPopup() {
+    popupBg.style.display = "none";
+}
+
+// PAGINAÇÃO
+function atualizarPaginacao() {
+    const totalPaginas = Math.ceil(logsFiltrados.length / porPagina);
+    const pag = document.getElementById("paginacao");
+    pag.innerHTML = "";
+
+    for (let i = 1; i <= totalPaginas; i++) {
+        pag.innerHTML += `<button onclick="irPara(${i})">${i}</button>`;
+    }
+}
+function irPara(num) {
+    paginaAtual = num;
+    listarLogs();
+}
+
+// FILTROS
+function aplicarFiltros() {
+    logsFiltrados = [...logs];
+
+    const usuario = filtroUsuario.value;
+    const acao = filtroAcao.value;
+    const texto = filtroTexto.value.toLowerCase();
+    const inicio = dataInicio.value;
+    const fim = dataFim.value;
+
+    if (usuario) logsFiltrados = logsFiltrados.filter(l => l.usuario === usuario);
+    if (acao) logsFiltrados = logsFiltrados.filter(l => l.acao === acao);
+    if (texto) logsFiltrados = logsFiltrados.filter(l =>
+        l.acao.toLowerCase().includes(texto) ||
+        l.detalhes.toLowerCase().includes(texto)
+    );
+
+    if (inicio) logsFiltrados = logsFiltrados.filter(l => new Date(l.data) >= new Date(inicio));
+    if (fim) logsFiltrados = logsFiltrados.filter(l => new Date(l.data) <= new Date(fim + " 23:59"));
+
+    paginaAtual = 1;
+    listarLogs();
+}
+
+function limparFiltros() {
+    filtroUsuario.value = "";
+    filtroAcao.value = "";
+    filtroTexto.value = "";
+    dataInicio.value = "";
+    dataFim.value = "";
+
+    logsFiltrados = [...logs];
+    listarLogs();
+}
+
+// ORDENAR
+function ordenar(campo) {
+    logsFiltrados.sort((a, b) => a[campo].localeCompare(b[campo]));
+    listarLogs();
+}
+
+// EXPORTAR CSV
+function exportarCSV() {
+    let csv = "data;usuario;acao;detalhes\n";
+
+    logsFiltrados.forEach(l => {
+        csv += `${l.data};${l.usuario};${l.acao};${l.detalhes}\n`;
+    });
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "logs.csv";
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+carregarFiltros();
+listarLogs();
+</script>
+
+</body>
+</html>
