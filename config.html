@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações do Sistema</title>
+    <link rel="stylesheet" href="css/style.css">
+
+<style>
+.config-box {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+}
+.config-box h3 {
+    margin-top: 0;
+}
+</style>
+
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="item" onclick="location.href='inicio.html'"><img class="icon" src="icons/home.svg"><span>Início</span></div>
+    <div class="item" onclick="location.href='producao.html'"><img class="icon" src="icons/box.svg"><span>Produção</span></div>
+    <div class="item" onclick="location.href='estoque_produtos.html'"><img class="icon" src="icons/warehouse.svg"><span>Estoque</span></div>
+    <div class="item" onclick="location.href='produtos.html'"><img class="icon" src="icons/tag.svg"><span>Produtos</span></div>
+    <div class="item" onclick="location.href='insumos.html'"><img class="icon" src="icons/layers.svg"><span>Insumos</span></div>
+    <div class="item" onclick="location.href='relatorios.html'"><img class="icon" src="icons/chart.svg"><span>Relatórios</span></div>
+    <div class="item" onclick="location.href='logs.html'"><img class="icon" src="icons/list.svg"><span>Logs</span></div>
+    <div class="item active" onclick="location.href='config.html'"><img class="icon" src="icons/settings.svg"><span>Configurações</span></div>
+    <div class="item" onclick="location.href='perfil.html'"><img class="icon" src="icons/user.svg"><span>Perfil</span></div>
+    <div class="item" onclick="logout()"><img class="icon" src="icons/logout.svg"><span>Sair</span></div>
+</div>
+
+<div class="main">
+<header>
+    <h2>Configurações do Sistema</h2>
+</header>
+
+<div id="conteudo">
+
+    <!-- AUDITORIA -->
+    <div class="config-box">
+        <h3>Auditoria</h3>
+
+        <label><input type="checkbox" id="logCriacao"> Registrar criação de produtos</label><br>
+        <label><input type="checkbox" id="logEdicao"> Registrar edição de produtos</label><br>
+        <label><input type="checkbox" id="logExclusao"> Registrar exclusão de produtos</label><br>
+        <label><input type="checkbox" id="logLogin"> Registrar login/logout</label><br>
+
+        <button class="btn-primary" onclick="salvarAuditoria()">Salvar Auditoria</button>
+    </div>
+
+    <!-- RETENÇÃO -->
+    <div class="config-box">
+        <h3>Retenção Automática de Logs</h3>
+
+        <label>Manter logs por:</label>
+        <select id="retencao">
+            <option value="30">30 dias</option>
+            <option value="60">60 dias</option>
+            <option value="90">90 dias</option>
+            <option value="180">180 dias</option>
+            <option value="0">Ilimitado</option>
+        </select>
+
+        <button class="btn-primary" onclick="salvarRetencao()">Salvar Retenção</button>
+    </div>
+
+    <!-- LIMITE -->
+    <div class="config-box">
+        <h3>Limite Máximo de Registros</h3>
+
+        <label>Máximo de registros:</label>
+        <input id="limite" type="number" min="100" placeholder="Ex: 1000">
+
+        <button class="btn-primary" onclick="salvarLimite()">Salvar Limite</button>
+    </div>
+
+    <!-- LIMPEZA -->
+    <div class="config-box">
+        <h3>Limpeza Manual</h3>
+
+        <button class="btn-danger" onclick="limparLogs()">Limpar TODOS os logs</button>
+    </div>
+
+</div>
+
+</div>
+
+<script src="js/app.js"></script>
+
+<script>
+// SOMENTE ADMIN
+const user = usuarioLogado();
+if (!user || user.permissao !== "admin") {
+    alert("Apenas administradores podem acessar esta página.");
+    location.href = "inicio.html";
+}
+
+// CARREGAR CONFIGURAÇÕES
+let config = listar("configSistema") || {
+    auditoria: {
+        criacao: true,
+        edicao: true,
+        exclusao: true,
+        login: true
+    },
+    retencaoDias: 90,
+    limiteRegistros: 2000
+};
+
+// PREENCHER CAMPOS
+document.getElementById("logCriacao").checked = config.auditoria.criacao;
+document.getElementById("logEdicao").checked = config.auditoria.edicao;
+document.getElementById("logExclusao").checked = config.auditoria.exclusao;
+document.getElementById("logLogin").checked = config.auditoria.login;
+
+document.getElementById("retencao").value = config.retencaoDias;
+document.getElementById("limite").value = config.limiteRegistros;
+
+// SALVAR AUDITORIA
+function salvarAuditoria() {
+    config.auditoria.criacao = logCriacao.checked;
+    config.auditoria.edicao = logEdicao.checked;
+    config.auditoria.exclusao = logExclusao.checked;
+    config.auditoria.login = logLogin.checked;
+
+    salvar("configSistema", config);
+    alert("Configurações de auditoria salvas!");
+}
+
+// SALVAR RETENÇÃO
+function salvarRetencao() {
+    config.retencaoDias = Number(retencao.value);
+    salvar("configSistema", config);
+    alert("Retenção salva!");
+}
+
+// SALVAR LIMITE
+function salvarLimite() {
+    const valor = Number(limite.value);
+    if (valor < 100) return alert("O limite mínimo é 100.");
+
+    config.limiteRegistros = valor;
+    salvar("configSistema", config);
+    alert("Limite salvo!");
+}
+
+// LIMPAR LOGS
+function limparLogs() {
+    if (!confirm("Tem certeza que deseja apagar TODOS os logs?")) return;
+    if (!confirm("Última confirmação: isso é irreversível. Continuar?")) return;
+
+    salvar("logs", []);
+    alert("Todos os logs foram apagados.");
+}
+
+</script>
+
+</body>
+</html>
