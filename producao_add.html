@@ -12,7 +12,7 @@
 <h2>Registrar Produção</h2>
 
 <label>Produto</label>
-<select id="produto"></select>
+<input id="produto" type="text" placeholder="Digite o nome do produto">
 
 <label>Quantidade</label>
 <input id="quantidade" type="number" min="1">
@@ -35,23 +35,14 @@ if (!user || (user.permissao !== "producao" && user.permissao !== "admin")) {
     location.href = "inicio.html";
 }
 
-// CARREGAR PRODUTOS
-const produtos = listar("produtos");
-const selectProduto = document.getElementById("produto");
-
-produtos.forEach(p => {
-    selectProduto.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
-});
-
 // SALVAR PRODUÇÃO
 function salvar() {
-    const produtoId = produto.value;
+    const nomeProduto = produto.value.trim();
     const qtd = Number(quantidade.value);
     const custoTotal = Number(custo.value);
 
-    // Validações
-    if (!produtoId) {
-        alert("Selecione um produto.");
+    if (!nomeProduto) {
+        alert("Digite o nome do produto.");
         return;
     }
 
@@ -65,8 +56,8 @@ function salvar() {
         return;
     }
 
-    registrarProducao(produtoId, qtd, custoTotal);
-    registrarLog("Registrou produção", `Produto ID ${produtoId}, Qtd ${qtd}`);
+    registrarProducao(nomeProduto, qtd, custoTotal);
+    registrarLog("Registrou produção", `Produto: ${nomeProduto}, Qtd: ${qtd}`);
 
     alert("Produção registrada com sucesso!");
     location.href = "producao.html";
