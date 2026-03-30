@@ -204,6 +204,35 @@ function alterarSenhaUsuario(id, novaSenha) {
     atualizar("usuarios", id, user);
     registrarLog("Alterou senha", user.email);
 }
+// LIMPEZA AUTOMÁTICA DE LOGS
+function limpezaAutomaticaLogs() {
+    let logs = listar("logs");
+    let config = listar("configSistema");
+
+    if (!config) return; // se não existir config, não faz nada
+
+    // 1. RETENÇÃO POR DIAS
+    if (config.retencaoDias > 0) {
+        const agora = new Date();
+
+        logs = logs.filter(log => {
+            const dataLog = new Date(log.data);
+            const diff = (agora - dataLog) / (1000 * 60 * 60 * 24); // dias
+            return diff <= config.retencaoDias;
+        });
+    }
+
+    // 2. LIMITE MÁXIMO DE REGISTROS
+    if (logs.length > config.limiteRegistros) {
+        const excesso = logs.length - config.limiteRegistros;
+        logs.splice(0, excesso); // remove os mais antigos
+    }
+
+    salvar("logs", logs);
+}
+
+// EXECUTA AUTOMATICAMENTE AO INICIAR O SISTEMA
+limpezaAutomaticaLogs();
 
 // ============================================================
 // INICIALIZAÇÃO AUTOMÁTICA
