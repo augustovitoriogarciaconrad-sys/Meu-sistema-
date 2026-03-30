@@ -9,13 +9,13 @@
 <body>
 
 <div class="sidebar">
-    <div class="item active" onclick="location.href='home.html'"><img class="icon" src="icons/home.svg"><span>Dashboard</span></div>
-    <div class="item" onclick="location.href='producao.html'"><img class="icon" src="icons/box.svg"><span>Produção</span></div>
-    <div class="item" onclick="location.href='estoque_produtos.html'"><img class="icon" src="icons/warehouse.svg"><span>Estoque</span></div>
-    <div class="item" onclick="location.href='produtos.html'"><img class="icon" src="icons/tag.svg"><span>Produtos</span></div>
-    <div class="item" onclick="location.href='insumos.html'"><img class="icon" src="icons/layers.svg"><span>Insumos</span></div>
-    <div class="item" onclick="location.href='relatorios.html'"><img class="icon" src="icons/chart.svg"><span>Relatórios</span></div>
-    <div class="item" onclick="location.href='admin.html'"><img class="icon" src="icons/settings.svg"><span>Administração</span></div>
+    <div class="item active" onclick="location.href='inicio.html'"><img class="icon" src="icons/home.svg"><span>Início</span></div>
+    <div class="item" id="menuProducao" onclick="location.href='producao.html'"><img class="icon" src="icons/box.svg"><span>Produção</span></div>
+    <div class="item" id="menuEstoque" onclick="location.href='estoque_produtos.html'"><img class="icon" src="icons/warehouse.svg"><span>Estoque</span></div>
+    <div class="item" id="menuProdutos" onclick="location.href='produtos.html'"><img class="icon" src="icons/tag.svg"><span>Produtos</span></div>
+    <div class="item" id="menuInsumos" onclick="location.href='insumos.html'"><img class="icon" src="icons/layers.svg"><span>Insumos</span></div>
+    <div class="item" id="menuRelatorios" onclick="location.href='relatorios.html'"><img class="icon" src="icons/chart.svg"><span>Relatórios</span></div>
+    <div class="item" id="menuAdmin" onclick="location.href='admin.html'"><img class="icon" src="icons/settings.svg"><span>Administração</span></div>
     <div class="item" onclick="location.href='perfil.html'"><img class="icon" src="icons/user.svg"><span>Perfil</span></div>
     <div class="item" onclick="logout()"><img class="icon" src="icons/logout.svg"><span>Sair</span></div>
 </div>
@@ -47,41 +47,71 @@
 </div>
 
 <script src="js/app.js"></script>
-<script>
-verificarPermissao("usuario");
 
+<script>
+// BLOQUEIO — QUALQUER USUÁRIO LOGADO PODE ACESSAR O DASHBOARD
+const user = usuarioLogado();
+if (!user) {
+    alert("Sessão expirada. Faça login novamente.");
+    location.href = "index.html";
+}
+
+// MENU INTELIGENTE
+const permitidas = areasPermitidas();
+
+if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
+if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
+if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
+if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").style.display = "none";
+if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
+if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
+
+// DASHBOARD
 function carregarDashboard() {
     const producao = listar("producao");
     const produtos = listar("produtos");
     const insumos = listar("insumos");
     const logs = listar("logs");
 
-    const hoje = new Date().toLocaleDateString();
+    const hoje = new Date().toLocaleDateString("pt-BR");
+
+    // PRODUÇÃO DO DIA
     const prodHoje = producao.filter(p => p.data.startsWith(hoje));
     const totalProdHoje = prodHoje.reduce((s, p) => s + Number(p.quantidade), 0);
     document.getElementById("prodDia").innerText = totalProdHoje;
 
+    // CUSTO DO DIA
     const custoHoje = prodHoje.reduce((s, p) => s + Number(p.custo), 0);
     document.getElementById("custoDia").innerText = "R$ " + custoHoje.toFixed(2);
 
+    // ESTOQUE CRÍTICO
     const criticos = produtos.filter(p => {
         const total = producao.filter(x => x.produtoId == p.id).reduce((s, x) => s + Number(x.quantidade), 0);
         return total < p.estoqueMinimo;
     });
     document.getElementById("estoqueCritico").innerText = criticos.length;
 
+    // INSUMOS VENCENDO
     const hojeData = new Date();
     const vencendo = insumos.filter(i => {
+        if (!i.validade) return false;
         const validade = new Date(i.validade);
         const diff = (validade - hojeData) / (1000 * 60 * 60 * 24);
         return diff >= 0 && diff <= 5;
     });
     document.getElementById("insumosVencendo").innerText = vencendo.length;
 
+    // LOGS
     const tabela = document.getElementById("listaLogs");
     tabela.innerHTML = "";
     logs.slice(-10).reverse().forEach(l => {
-        tabela.innerHTML += `<tr><td>${l.usuario}</td><td>${l.acao}</td><td>${l.detalhes}</td><td>${l.data}</td></tr>`;
+        tabela.innerHTML += `
+            <tr>
+                <td>${l.usuario}</td>
+                <td>${l.acao}</td>
+                <td>${l.detalhes}</td>
+                <td>${l.data}</td>
+            </tr>`;
     });
 }
 
