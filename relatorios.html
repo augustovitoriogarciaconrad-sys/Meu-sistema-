@@ -95,7 +95,7 @@ function carregarRelatorios() {
 
     produtos.forEach(p => {
         const totalQtd = producao
-            .filter(x => x.produto === p.nome)
+            .filter(x => x.idProduto === p.id)
             .reduce((s, x) => s + Number(x.quantidade), 0);
 
         tabelaProd.innerHTML += `
@@ -122,13 +122,13 @@ function carregarRelatorios() {
             <tr>
                 <td>${i.nome}</td>
                 <td>${i.categoria}</td>
-                <td>${i.validade}</td>
+                <td>${new Date(i.validade).toLocaleDateString("pt-BR")}</td>
                 <td>${diff} dias</td>
             </tr>`;
         }
     });
 
-    // LOGS (últimos 20)
+    // LOGS (últimos 20, mais recentes primeiro)
     const tabelaLogs = document.getElementById("relLogs");
     tabelaLogs.innerHTML = "";
 
@@ -148,3 +148,4 @@ carregarRelatorios();
 
 </body>
 </html>
+
