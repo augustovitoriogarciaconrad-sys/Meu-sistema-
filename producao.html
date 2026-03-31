@@ -50,9 +50,8 @@ if (!user || (user.permissao !== "producao" && user.permissao !== "admin")) {
     location.href = "inicio.html";
 }
 
-// ESCONDER ITENS DO MENU CONFORME PERMISSÃO
+// MENU DINÂMICO
 const permitidas = areasPermitidas();
-
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
 if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
 if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
@@ -60,9 +59,9 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-// LISTAGEM DE PRODUÇÃO REAL
+// LISTAGEM DE PRODUÇÃO
 function carregarProducao() {
-    const producao = listar("producao");
+    const producao = listar("producao").sort((a,b) => b.id - a.id);
     const tabela = document.getElementById("listaProducao");
 
     tabela.innerHTML = "";
@@ -74,15 +73,27 @@ function carregarProducao() {
             <td>${p.quantidade}</td>
             <td>${p.data}</td>
             <td>
-                <button class="btn-danger" onclick="excluirProducao(${p.id})">Excluir</button>
+                <button class="btn-danger" onclick="excluirProducao(${p.id}, ${p.idProduto}, ${p.quantidade})">Excluir</button>
             </td>
         </tr>`;
     });
 }
 
-function excluirProducao(id) {
+// EXCLUSÃO — DEVOLVE ESTOQUE
+function excluirProducao(id, idProduto, quantidade) {
+    if (!confirm("Deseja realmente excluir esta produção?")) return;
+
+    // devolve estoque
+    const produtos = listar("produtos");
+    const produto = produtos.find(p => p.id === idProduto);
+    if (produto) {
+        produto.estoqueAtual -= quantidade;
+        salvar("produtos", produtos);
+    }
+
     remover("producao", id);
     registrarLog("Excluiu produção", "ID " + id);
+
     carregarProducao();
 }
 
