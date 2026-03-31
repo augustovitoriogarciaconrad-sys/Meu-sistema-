@@ -231,7 +231,7 @@ function produzirProduto(idProduto, quantidade) {
 }
 
 // ============================================================
-// SAÍDA DE PRODUTOS (NOVO)
+// SAÍDA DE PRODUTOS
 // ============================================================
 
 function registrarSaida(idProduto, quantidade, motivo = "Saída de estoque") {
