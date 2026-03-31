@@ -31,7 +31,8 @@
 <tr>
     <th>Nome</th>
     <th>Categoria</th>
-    <th>Quantidade</th>
+    <th>Estoque Atual</th>
+    <th>Unidade</th>
     <th>Validade</th>
     <th>Ações</th>
 </tr>
@@ -73,7 +74,7 @@ function carregarInsumos() {
     tabela.innerHTML = "";
 
     if (insumos.length === 0) {
-        tabela.innerHTML = `<tr><td colspan="5">Nenhum insumo cadastrado.</td></tr>`;
+        tabela.innerHTML = `<tr><td colspan="6">Nenhum insumo cadastrado.</td></tr>`;
         return;
     }
 
@@ -82,8 +83,9 @@ function carregarInsumos() {
         <tr>
             <td>${i.nome}</td>
             <td>${i.categoria}</td>
-            <td>${i.quantidade}</td>
-            <td>${i.validade}</td>
+            <td>${i.estoqueAtual ?? 0}</td>
+            <td>${i.unidade || "-"}</td>
+            <td>${i.validade || "-"}</td>
             <td>
                 <button class="btn-secondary" onclick="editar(${i.id})">Editar</button>
                 <button class="btn-danger" onclick="excluirInsumo(${i.id})">Excluir</button>
