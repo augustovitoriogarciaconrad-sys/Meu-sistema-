@@ -60,15 +60,16 @@ function salvar() {
     // PRODUÇÃO REAL (consome insumos + aumenta estoque)
     produzirProduto(idProduto, qtd);
 
-    // REGISTRO PARA HISTÓRICO
+    // REGISTRO PARA HISTÓRICO COMPLETO
     const produtos = listar("produtos");
     const prod = produtos.find(p => p.id === idProduto);
 
     adicionar("producao", {
         id: Date.now(),
+        idProduto: idProduto,
         produto: prod.nome,
         quantidade: qtd,
-        data: new Date().toLocaleDateString("pt-BR")
+        data: new Date().toLocaleString("pt-BR")
     });
 
     registrarLog("Produção registrada", `${prod.nome} — ${qtd} unidades`);
@@ -80,3 +81,4 @@ function salvar() {
 
 </body>
 </html>
+
