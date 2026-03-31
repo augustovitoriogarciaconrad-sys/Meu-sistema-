@@ -31,7 +31,6 @@
 <tr>
     <th>Produto</th>
     <th>Total Produzido</th>
-    <th>Custo Total</th>
 </tr>
 </thead>
 <tbody id="relProd"></tbody>
@@ -68,16 +67,14 @@
 <script src="js/app.js"></script>
 
 <script>
-// BLOQUEIO — PERMISSÕES QUE PODEM ACESSAR RELATÓRIOS
+// PERMISSÕES
 const user = usuarioLogado();
 if (!user || !["usuario", "financeiro", "admin", "estoquista", "producao"].includes(user.permissao)) {
-    alert("Acesso não permitido para sua permissão.");
+    alert("Acesso não permitido.");
     location.href = "inicio.html";
 }
 
-// ESCONDER ITENS DO MENU CONFORME PERMISSÃO
 const permitidas = areasPermitidas();
-
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
 if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
 if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
@@ -85,7 +82,7 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-// CARREGAR RELATÓRIOS
+// RELATÓRIOS
 function carregarRelatorios() {
     const produtos = listar("produtos");
     const producao = listar("producao");
@@ -97,15 +94,14 @@ function carregarRelatorios() {
     tabelaProd.innerHTML = "";
 
     produtos.forEach(p => {
-        const prod = producao.filter(x => x.produtoId == p.id);
-        const totalQtd = prod.reduce((s, x) => s + Number(x.quantidade), 0);
-        const totalCusto = prod.reduce((s, x) => s + Number(x.custo), 0);
+        const totalQtd = producao
+            .filter(x => x.produto === p.nome)
+            .reduce((s, x) => s + Number(x.quantidade), 0);
 
         tabelaProd.innerHTML += `
         <tr>
             <td>${p.nome}</td>
             <td>${totalQtd}</td>
-            <td>R$ ${totalCusto.toFixed(2)}</td>
         </tr>`;
     });
 
@@ -132,7 +128,7 @@ function carregarRelatorios() {
         }
     });
 
-    // LOGS
+    // LOGS (últimos 20)
     const tabelaLogs = document.getElementById("relLogs");
     tabelaLogs.innerHTML = "";
 
