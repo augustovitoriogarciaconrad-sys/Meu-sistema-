@@ -45,7 +45,7 @@
 
     <button class="btn-primary" style="margin-top:20px;" onclick="alterarSenha()">Salvar Nova Senha</button>
 
-    <div id="msg"></div>
+    <div id="msg" style="margin-top:15px;"></div>
 </div>
 
 </div>
@@ -62,7 +62,6 @@ if (!user) {
 
 // MENU DINÂMICO
 const permitidas = areasPermitidas();
-
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
 if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
 if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
@@ -79,29 +78,36 @@ function carregarPerfil() {
 
 // ALTERAR SENHA
 function alterarSenha() {
+    msg.innerHTML = ""; // limpa mensagens anteriores
+
     const atual = senhaAtual.value.trim();
     const nova = senhaNova.value.trim();
 
     if (!atual || !nova) {
-        msg.innerHTML = "<div class='alert alert-warning'>Preencha todos os campos.</div>";
+        msg.innerHTML = "<p style='color:orange;'>Preencha todos os campos.</p>";
         return;
     }
 
     if (atual !== user.senha) {
-        msg.innerHTML = "<div class='alert alert-danger'>Senha atual incorreta.</div>";
+        msg.innerHTML = "<p style='color:red;'>Senha atual incorreta.</p>";
         return;
     }
 
     if (nova.length < 4) {
-        msg.innerHTML = "<div class='alert alert-warning'>A nova senha deve ter pelo menos 4 caracteres.</div>";
+        msg.innerHTML = "<p style='color:orange;'>A nova senha deve ter pelo menos 4 caracteres.</p>";
         return;
     }
 
+    // Atualiza no banco
     user.senha = nova;
     atualizar("usuarios", user.id, user);
+
+    // Atualiza o usuário logado no localStorage
+    localStorage.setItem("logado", JSON.stringify(user));
+
     registrarLog("Alterou senha", "Usuário " + user.email);
 
-    msg.innerHTML = "<div class='alert alert-success'>Senha alterada com sucesso!</div>";
+    msg.innerHTML = "<p style='color:lightgreen;'>Senha alterada com sucesso!</p>";
     senhaAtual.value = "";
     senhaNova.value = "";
 }
