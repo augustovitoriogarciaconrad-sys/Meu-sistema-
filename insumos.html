@@ -45,16 +45,15 @@
 <script src="js/app.js"></script>
 
 <script>
-// BLOQUEIO — PERMISSÕES QUE PODEM ACESSAR INSUMOS
+// PERMISSÕES QUE PODEM ACESSAR INSUMOS
 const user = usuarioLogado();
-if (!user || !["usuario", "admin", "estoquista", "producao"].includes(user.permissao)) {
+if (!user || !["admin", "usuario", "estoquista", "producao"].includes(user.permissao)) {
     alert("Acesso não permitido para sua permissão.");
     location.href = "inicio.html";
 }
 
-// ESCONDER ITENS DO MENU CONFORME PERMISSÃO
+// MENU DINÂMICO
 const permitidas = areasPermitidas();
-
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
 if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
 if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
@@ -62,8 +61,8 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-// BOTÃO DE ADICIONAR INSUMO — SOMENTE ADMIN E USUÁRIO
-if (!["admin", "usuario"].includes(user.permissao)) {
+// BOTÃO DE ADICIONAR INSUMO — SOMENTE ADMIN E ESTOQUISTA
+if (!["admin", "estoquista"].includes(user.permissao)) {
     document.getElementById("btnAdd").style.display = "none";
 }
 
