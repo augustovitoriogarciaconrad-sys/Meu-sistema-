@@ -30,8 +30,7 @@
 <thead>
 <tr>
     <th>Produto</th>
-    <th>Quantidade</th>
-    <th>Custo</th>
+    <th>Quantidade Produzida</th>
     <th>Data</th>
     <th>Ações</th>
 </tr>
@@ -61,27 +60,18 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-// BOTÃO DE ADICIONAR PRODUÇÃO — SOMENTE PRODUÇÃO OU ADMIN
-if (!permitidas.includes("producao")) {
-    document.getElementById("btnAdd").style.display = "none";
-}
-
-// LISTAGEM DE PRODUÇÃO
+// LISTAGEM DE PRODUÇÃO REAL
 function carregarProducao() {
     const producao = listar("producao");
-    const produtos = listar("produtos");
     const tabela = document.getElementById("listaProducao");
 
     tabela.innerHTML = "";
 
     producao.forEach(p => {
-        const prod = produtos.find(x => x.id == p.produtoId);
-
         tabela.innerHTML += `
         <tr>
-            <td>${prod ? prod.nome : "Produto removido"}</td>
+            <td>${p.produto}</td>
             <td>${p.quantidade}</td>
-            <td>R$ ${Number(p.custo).toFixed(2)}</td>
             <td>${p.data}</td>
             <td>
                 <button class="btn-danger" onclick="excluirProducao(${p.id})">Excluir</button>
