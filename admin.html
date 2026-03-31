@@ -16,7 +16,6 @@
     <div class="item" id="menuInsumos" onclick="location.href='insumos.html'"><img class="icon" src="icons/layers.svg"><span>Insumos</span></div>
     <div class="item" id="menuRelatorios" onclick="location.href='relatorios.html'"><img class="icon" src="icons/chart.svg"><span>Relatórios</span></div>
 
-    <!-- ADMIN -->
     <div class="item active" id="menuAdmin" onclick="location.href='admin.html'">
         <img class="icon" src="icons/settings.svg"><span>Administração</span>
     </div>
@@ -62,16 +61,15 @@
 <script src="js/app.js"></script>
 
 <script>
-// BLOQUEIO DE ACESSO — SOMENTE ADMIN
+// BLOQUEIO — SOMENTE ADMIN
 const user = usuarioLogado();
 if (!user || user.permissao !== "admin") {
     alert("Apenas administradores podem acessar esta área.");
     location.href = "inicio.html";
 }
 
-// ESCONDER ITENS DO MENU CONFORME PERMISSÃO
+// MENU DINÂMICO
 const permitidas = areasPermitidas();
-
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
 if (!permitidas.includes("estoque")) document.getElementById("menuEstoque").style.display = "none";
 if (!permitidas.includes("produtos")) document.getElementById("menuProdutos").style.display = "none";
@@ -79,8 +77,7 @@ if (!permitidas.includes("insumos")) document.getElementById("menuInsumos").styl
 if (!permitidas.includes("relatorios")) document.getElementById("menuRelatorios").style.display = "none";
 if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.display = "none";
 
-
-// LISTAGEM DE USUÁRIOS
+// LISTA DE USUÁRIOS
 function carregarUsuarios() {
     let usuarios = listar("usuarios");
     usuarios.sort((a, b) => a.nome.localeCompare(b.nome));
@@ -113,28 +110,29 @@ function editar(id) {
 }
 
 function excluirUsuario(id) {
-    const logado = usuarioLogado();
     const usuarios = listar("usuarios");
-    const user = usuarios.find(u => u.id == id);
+    const alvo = usuarios.find(u => u.id == id);
 
-    if (user.email === "admin@admin.com") {
-        alert("O usuário administrador padrão não pode ser excluído.");
+    if (!alvo) return;
+
+    if (alvo.email === "admin@admin.com") {
+        alert("O administrador padrão não pode ser excluído.");
         return;
     }
 
-    if (logado && logado.id == id) {
-        alert("Você não pode excluir o próprio usuário enquanto estiver logado.");
+    if (user.id == id) {
+        alert("Você não pode excluir a si mesmo enquanto estiver logado.");
         return;
     }
 
-    if (!confirm(`Tem certeza que deseja excluir o usuário "${user.nome}"?`)) return;
+    if (!confirm(`Excluir usuário "${alvo.nome}"?`)) return;
 
     remover("usuarios", id);
-    registrarLog("Excluiu usuário", "ID " + id);
+    registrarLog("Excluiu usuário", alvo.email);
     carregarUsuarios();
 }
 
-// LISTAGEM DE LOGS
+// LISTA DE LOGS
 function carregarLogs() {
     const logs = listar("logs");
     const tabela = document.getElementById("listaLogs");
