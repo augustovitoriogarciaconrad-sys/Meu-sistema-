@@ -37,7 +37,7 @@
 <script src="js/app.js"></script>
 
 <script>
-// BLOQUEIO — SOMENTE ADMIN PODE ACESSAR ESTA PÁGINA
+// BLOQUEIO — SOMENTE ADMIN
 const user = usuarioLogado();
 if (!user || user.permissao !== "admin") {
     alert("Apenas administradores podem acessar esta área.");
@@ -46,37 +46,32 @@ if (!user || user.permissao !== "admin") {
 
 // SALVAR USUÁRIO
 function salvarUsuario() {
-    const nome = nomeInput.value.trim();
-    const email = emailInput.value.trim();
-    const senha = senhaInput.value.trim();
-    const permissao = permissaoInput.value;
+    const nomeIn = nome.value.trim();
+    const emailIn = email.value.trim();
+    const senhaIn = senha.value.trim();
+    const permissaoIn = permissao.value;
 
-    // Validação
-    if (!nome || !email || !senha) {
+    if (!nomeIn || !emailIn || !senhaIn) {
         alert("Preencha todos os campos.");
         return;
     }
 
-    // Impede duplicar e-mail
     const usuarios = listar("usuarios");
-    if (usuarios.some(u => u.email === email)) {
+    if (usuarios.some(u => u.email === emailIn)) {
         alert("Já existe um usuário cadastrado com este e-mail.");
         return;
     }
 
-    // Criação
-    if (criarUsuario(nome, email, senha, permissao)) {
-        registrarLog("Criou usuário", nome);
+    const criado = criarUsuario(nomeIn, emailIn, senhaIn, permissaoIn);
+
+    if (criado) {
+        registrarLog("Criou usuário", emailIn);
         alert("Usuário cadastrado com sucesso!");
         location.href = "admin.html";
+    } else {
+        alert("Erro ao criar usuário.");
     }
 }
-
-// Inputs
-const nomeInput = document.getElementById("nome");
-const emailInput = document.getElementById("email");
-const senhaInput = document.getElementById("senha");
-const permissaoInput = document.getElementById("permissao");
 </script>
 
 </body>
