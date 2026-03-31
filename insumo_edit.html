@@ -40,9 +40,9 @@
 <script src="js/app.js"></script>
 
 <script>
-// BLOQUEIO — SOMENTE ADMIN E USUÁRIO PODEM EDITAR INSUMOS
+// PERMISSÃO — SOMENTE ADMIN E ESTOQUISTA PODEM EDITAR INSUMOS
 const user = usuarioLogado();
-if (!user || !["admin", "usuario"].includes(user.permissao)) {
+if (!user || !["admin", "estoquista"].includes(user.permissao)) {
     alert("Acesso não permitido para sua permissão.");
     location.href = "inicio.html";
 }
@@ -73,7 +73,7 @@ function salvar() {
     const validadeInsumo = validade.value;
 
     if (!nomeInsumo || !categoriaInsumo || !validadeInsumo) {
-        alert("Preencha todos os campos.");
+        alert("Preencha todos os campos obrigatórios.");
         return;
     }
 
@@ -91,6 +91,9 @@ function salvar() {
 
     atualizar("insumos", ins.id, ins);
     registrarLog("Editou insumo", ins.nome);
+
+    // limpa ID salvo
+    localStorage.removeItem("editInsumo");
 
     alert("Insumo atualizado com sucesso!");
     location.href = "insumos.html";
