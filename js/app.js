@@ -43,7 +43,6 @@ function usuarioLogado() {
 function login(email, senha) {
     const usuarios = listar("usuarios");
 
-    // cria admin padrão se não existir
     if (!usuarios.some(u => u.email === "admin@admin.com")) {
         usuarios.push({
             id: 1,
@@ -146,16 +145,19 @@ function registrarLog(acao, detalhes) {
 }
 
 // ============================================================
-// PRODUTOS
+// PRODUTOS (AGORA COM FICHA TÉCNICA)
 // ============================================================
 
-function criarProduto(nome, categoria, preco, estoqueMinimo) {
+function criarProduto(nome, categoria, preco, estoqueMinimo, fichaTecnica = []) {
     const id = adicionar("produtos", {
         nome,
         categoria,
         preco,
-        estoqueMinimo
+        estoqueMinimo,
+        estoqueAtual: 0,
+        fichaTecnica
     });
+
     registrarLog("Criou produto", nome);
     return id;
 }
@@ -164,31 +166,67 @@ function criarProduto(nome, categoria, preco, estoqueMinimo) {
 // INSUMOS
 // ============================================================
 
-function criarInsumo(nome, categoria, quantidade, validade) {
+function criarInsumo(nome, categoria, quantidade, validade, unidade = "un") {
     const id = adicionar("insumos", {
         nome,
         categoria,
-        quantidade,
+        estoqueAtual: quantidade,
+        unidade,
         validade
     });
+
     registrarLog("Criou insumo", nome);
     return id;
 }
 
 // ============================================================
-// PRODUÇÃO (AGORA USA NOME DO PRODUTO)
+// CONSUMO AUTOMÁTICO DE INSUMOS
 // ============================================================
 
-function registrarProducao(produto, quantidade, custo) {
-    const id = adicionar("producao", {
-        produto, // agora salva o nome digitado
-        quantidade,
-        custo,
-        data: new Date().toLocaleDateString("pt-BR")
+function consumirInsumos(produto, quantidade) {
+    const insumos = listar("insumos");
+    let consumo = listar("consumo") || [];
+
+    produto.fichaTecnica.forEach(item => {
+        const insumo = insumos.find(i => i.id === item.idInsumo);
+        if (!insumo) return;
+
+        const total = item.qtdPorUnidade * quantidade;
+        insumo.estoqueAtual -= total;
+
+        registrarLog("Insumo consumido",
+            `${total.toFixed(2)} ${insumo.unidade} de ${insumo.nome} usados na produção de ${quantidade} ${produto.nome}`);
+
+        consumo.push({
+            data: new Date().toLocaleString("pt-BR"),
+            produto: produto.nome,
+            quantidade,
+            insumo: insumo.nome,
+            total
+        });
     });
 
-    registrarLog("Registrou produção", "Produto: " + produto);
-    return id;
+    salvar("insumos", insumos);
+    salvar("consumo", consumo);
+}
+
+// ============================================================
+// PRODUÇÃO REAL
+// ============================================================
+
+function produzirProduto(idProduto, quantidade) {
+    const produtos = listar("produtos");
+    const produto = produtos.find(p => p.id === idProduto);
+    if (!produto) return;
+
+    consumirInsumos(produto, quantidade);
+
+    produto.estoqueAtual += quantidade;
+
+    registrarLog("Produção registrada",
+        `Produzido ${quantidade} unidades de ${produto.nome}`);
+
+    salvar("produtos", produtos);
 }
 
 // ============================================================
@@ -204,34 +242,35 @@ function alterarSenhaUsuario(id, novaSenha) {
     atualizar("usuarios", id, user);
     registrarLog("Alterou senha", user.email);
 }
+
+// ============================================================
 // LIMPEZA AUTOMÁTICA DE LOGS
+// ============================================================
+
 function limpezaAutomaticaLogs() {
     let logs = listar("logs");
     let config = listar("configSistema");
 
-    if (!config) return; // se não existir config, não faz nada
+    if (!config) return;
 
-    // 1. RETENÇÃO POR DIAS
     if (config.retencaoDias > 0) {
         const agora = new Date();
 
         logs = logs.filter(log => {
             const dataLog = new Date(log.data);
-            const diff = (agora - dataLog) / (1000 * 60 * 60 * 24); // dias
+            const diff = (agora - dataLog) / (1000 * 60 * 60 * 24);
             return diff <= config.retencaoDias;
         });
     }
 
-    // 2. LIMITE MÁXIMO DE REGISTROS
     if (logs.length > config.limiteRegistros) {
         const excesso = logs.length - config.limiteRegistros;
-        logs.splice(0, excesso); // remove os mais antigos
+        logs.splice(0, excesso);
     }
 
     salvar("logs", logs);
 }
 
-// EXECUTA AUTOMATICAMENTE AO INICIAR O SISTEMA
 limpezaAutomaticaLogs();
 
 // ============================================================
@@ -243,3 +282,4 @@ if (!localStorage.getItem("insumos")) salvar("insumos", []);
 if (!localStorage.getItem("producao")) salvar("producao", []);
 if (!localStorage.getItem("usuarios")) salvar("usuarios", []);
 if (!localStorage.getItem("logs")) salvar("logs", []);
+if (!localStorage.getItem("consumo")) salvar("consumo", []);
