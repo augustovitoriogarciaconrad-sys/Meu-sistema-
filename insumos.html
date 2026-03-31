@@ -66,7 +66,7 @@ if (!["admin", "estoquista"].includes(user.permissao)) {
     document.getElementById("btnAdd").style.display = "none";
 }
 
-// LISTAGEM DE INSUMOS
+// LISTAGEM DE INSUMOS COM ALERTA DE ESTOQUE BAIXO
 function carregarInsumos() {
     const insumos = listar("insumos");
     const tabela = document.getElementById("listaInsumos");
@@ -78,15 +78,30 @@ function carregarInsumos() {
     }
 
     insumos.forEach(i => {
+        const minimo = i.minimo ?? 5; // valor padrão
+        const atual = i.estoqueAtual ?? 0;
+
+        let classeAlerta = "";
+        let textoAlerta = "";
+
+        if (atual <= minimo) {
+            classeAlerta = "alerta-vermelho";
+            textoAlerta = "⚠ Baixo estoque";
+        } else if (atual <= minimo * 1.5) {
+            classeAlerta = "alerta-amarelo";
+            textoAlerta = "⚠ Atenção";
+        }
+
         tabela.innerHTML += `
-        <tr>
-            <td>${i.nome}</td>
+        <tr class="${classeAlerta}">
+            <td>${i.nome} <small>${textoAlerta}</small></td>
             <td>${i.categoria}</td>
-            <td>${i.estoqueAtual ?? 0}</td>
+            <td>${atual}</td>
             <td>${i.unidade || "-"}</td>
             <td>${i.validade || "-"}</td>
             <td>
                 <button class="btn-secondary" onclick="editar(${i.id})">Editar</button>
+                <button class="btn-primary" onclick="abrirEntrada(${i.id})">Entrada</button>
                 <button class="btn-primary" onclick="abrirRetirada(${i.id})">Retirar</button>
                 <button class="btn-danger" onclick="excluirInsumo(${i.id})">Excluir</button>
             </td>
@@ -107,7 +122,42 @@ function excluirInsumo(id) {
     carregarInsumos();
 }
 
-// ABRIR RETIRADA
+// ENTRADA DE INSUMO
+function abrirEntrada(id) {
+    const qtd = prompt("Quantidade a adicionar:");
+
+    if (!qtd) return;
+
+    const quantidade = Number(qtd);
+
+    if (isNaN(quantidade) || quantidade <= 0) {
+        alert("Quantidade inválida.");
+        return;
+    }
+
+    entradaInsumo(id, quantidade);
+}
+
+function entradaInsumo(id, quantidade) {
+    const insumos = listar("insumos");
+    const ins = insumos.find(i => i.id == id);
+
+    if (!ins) {
+        alert("Insumo não encontrado.");
+        return;
+    }
+
+    ins.estoqueAtual = (ins.estoqueAtual ?? 0) + quantidade;
+
+    atualizar("insumos", id, ins);
+
+    registrarLog("Entrada de insumo", `${ins.nome} — +${quantidade} ${ins.unidade}`);
+
+    alert("Entrada registrada com sucesso!");
+    carregarInsumos();
+}
+
+// RETIRADA DE INSUMO
 function abrirRetirada(id) {
     const qtd = prompt("Quantidade a retirar:");
 
@@ -123,7 +173,6 @@ function abrirRetirada(id) {
     retirarInsumo(id, quantidade);
 }
 
-// RETIRAR INSUMO
 function retirarInsumo(id, quantidade) {
     const insumos = listar("insumos");
     const ins = insumos.find(i => i.id == id);
