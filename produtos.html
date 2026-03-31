@@ -34,6 +34,7 @@
     <th>Categoria</th>
     <th>Preço</th>
     <th>Estoque Mínimo</th>
+    <th>Ficha Técnica</th>
     <th>Ações</th>
 </tr>
 </thead>
@@ -65,14 +66,18 @@ function carregarProdutos() {
     tabela.innerHTML = "";
 
     produtos.forEach(p => {
+        const temFicha = p.fichaTecnica && p.fichaTecnica.length > 0;
+
         tabela.innerHTML += `
         <tr>
             <td>${p.nome}</td>
             <td>${p.categoria}</td>
             <td>R$ ${Number(p.preco).toFixed(2)}</td>
             <td>${p.estoqueMinimo}</td>
+            <td>${temFicha ? "✔️ Sim" : "❌ Não"}</td>
             <td>
                 <button class="btn-small" onclick="editar(${p.id})">Editar</button>
+                <button class="btn-small" onclick="editarFicha(${p.id})">Ficha Técnica</button>
                 <button class="btn-small btn-danger" onclick="excluir(${p.id})">Excluir</button>
             </td>
         </tr>`;
@@ -80,6 +85,10 @@ function carregarProdutos() {
 }
 
 function editar(id) {
+    location.href = "produto_edit.html?id=" + id;
+}
+
+function editarFicha(id) {
     location.href = "produto_edit.html?id=" + id;
 }
 
