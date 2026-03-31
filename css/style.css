@@ -313,3 +313,23 @@ button {
         width: calc(100% - 60px);
     }
 }
+/* ============================================================
+   ALERTA DE ESTOQUE BAIXO (INSUMOS)
+============================================================ */
+
+.alerta-vermelho {
+    background-color: rgba(229, 57, 53, 0.15) !important;
+    border-left: 4px solid var(--red);
+}
+
+.alerta-amarelo {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    border-left: 4px solid var(--yellow);
+}
+
+.alerta-vermelho small,
+.alerta-amarelo small {
+    color: var(--yellow);
+    font-weight: bold;
+    margin-left: 6px;
+}
