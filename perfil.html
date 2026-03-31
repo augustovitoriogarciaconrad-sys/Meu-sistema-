@@ -53,14 +53,14 @@
 <script src="js/app.js"></script>
 
 <script>
-// BLOQUEIO — QUALQUER USUÁRIO LOGADO PODE VER O PRÓPRIO PERFIL
+// QUALQUER USUÁRIO LOGADO PODE VER O PRÓPRIO PERFIL
 const user = usuarioLogado();
 if (!user) {
     alert("Sessão expirada. Faça login novamente.");
     location.href = "index.html";
 }
 
-// MENU INTELIGENTE
+// MENU DINÂMICO
 const permitidas = areasPermitidas();
 
 if (!permitidas.includes("producao")) document.getElementById("menuProducao").style.display = "none";
@@ -72,9 +72,9 @@ if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.di
 
 // CARREGAR PERFIL
 function carregarPerfil() {
-    document.getElementById("nome").value = user.nome;
-    document.getElementById("email").value = user.email;
-    document.getElementById("permissao").value = user.permissao;
+    nome.value = user.nome;
+    email.value = user.email;
+    permissao.value = user.permissao;
 }
 
 // ALTERAR SENHA
