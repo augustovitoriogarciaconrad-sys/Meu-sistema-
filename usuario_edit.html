@@ -95,6 +95,9 @@ function salvarEdicao() {
     atualizar("usuarios", user.id, user);
     registrarLog("Editou usuário", user.email);
 
+    // limpa ID salvo
+    localStorage.removeItem("editUsuario");
+
     alert("Usuário atualizado com sucesso!");
     location.href = "admin.html";
 }
