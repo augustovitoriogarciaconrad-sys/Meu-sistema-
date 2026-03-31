@@ -23,6 +23,12 @@
 <label>Estoque Mínimo</label>
 <input id="estoqueMinimo" type="number" min="0">
 
+<h3>Ficha Técnica</h3>
+<div id="fichaTecnica"></div>
+
+<button onclick="adicionarInsumoFicha()">+ Adicionar Insumo</button>
+
+<br><br>
 <button class="btn-primary" onclick="salvarEdicao()">Salvar</button>
 <button class="btn-secondary" onclick="history.back()">Cancelar</button>
 
@@ -49,7 +55,8 @@ const antigo = {
     nome: produto.nome,
     categoria: produto.categoria,
     preco: produto.preco,
-    estoqueMinimo: produto.estoqueMinimo
+    estoqueMinimo: produto.estoqueMinimo,
+    fichaTecnica: JSON.stringify(produto.fichaTecnica || [])
 };
 
 // PREENCHER CAMPOS
@@ -58,28 +65,77 @@ categoria.value = produto.categoria;
 preco.value = produto.preco;
 estoqueMinimo.value = produto.estoqueMinimo;
 
+// ===============================
+// FICHA TÉCNICA
+// ===============================
+
+function adicionarInsumoFicha(item = null) {
+    const insumos = listar("insumos");
+
+    const linha = document.createElement("div");
+    linha.className = "linhaInsumo";
+
+    const select = document.createElement("select");
+    insumos.forEach(i => {
+        select.innerHTML += `<option value="${i.id}">${i.nome}</option>`;
+    });
+
+    const qtd = document.createElement("input");
+    qtd.type = "number";
+    qtd.step = "0.001";
+    qtd.placeholder = "Qtd por unidade";
+
+    if (item) {
+        select.value = item.idInsumo;
+        qtd.value = item.qtdPorUnidade;
+    }
+
+    const remover = document.createElement("button");
+    remover.innerText = "X";
+    remover.onclick = () => linha.remove();
+
+    linha.appendChild(select);
+    linha.appendChild(qtd);
+    linha.appendChild(remover);
+
+    document.getElementById("fichaTecnica").appendChild(linha);
+}
+
+// CARREGAR FICHA TÉCNICA EXISTENTE
+if (produto.fichaTecnica && produto.fichaTecnica.length > 0) {
+    produto.fichaTecnica.forEach(item => adicionarInsumoFicha(item));
+}
+
+// ===============================
 // SALVAR ALTERAÇÕES
+// ===============================
+
 function salvarEdicao() {
 
-    // VALIDAÇÃO COMPLETA
     if (!nome.value.trim()) return alert("O nome não pode ficar vazio.");
     if (!categoria.value.trim()) return alert("A categoria não pode ficar vazia.");
+    if (preco.value === "" || Number(preco.value) < 0) return alert("Preço inválido.");
+    if (estoqueMinimo.value === "" || Number(estoqueMinimo.value) < 0) return alert("Estoque mínimo inválido.");
 
-    if (preco.value === "" || Number(preco.value) < 0)
-        return alert("Preço inválido.");
-
-    if (estoqueMinimo.value === "" || Number(estoqueMinimo.value) < 0)
-        return alert("Estoque mínimo inválido.");
-
-    // APLICAR ALTERAÇÕES
     produto.nome = nome.value.trim();
     produto.categoria = categoria.value.trim();
     produto.preco = Number(preco.value);
     produto.estoqueMinimo = Number(estoqueMinimo.value);
 
+    // SALVAR FICHA TÉCNICA
+    const linhas = document.querySelectorAll(".linhaInsumo");
+    produto.fichaTecnica = [];
+
+    linhas.forEach(l => {
+        produto.fichaTecnica.push({
+            idInsumo: Number(l.children[0].value),
+            qtdPorUnidade: Number(l.children[1].value)
+        });
+    });
+
     salvar("produtos", produtos);
 
-    // REGISTRO DE AUDITORIA
+    // AUDITORIA
     const user = usuarioLogado();
     const alteracoes = [];
 
@@ -94,6 +150,9 @@ function salvarEdicao() {
 
     if (antigo.estoqueMinimo !== produto.estoqueMinimo)
         alteracoes.push(`Estoque Mínimo: ${antigo.estoqueMinimo} → ${produto.estoqueMinimo}`);
+
+    if (antigo.fichaTecnica !== JSON.stringify(produto.fichaTecnica))
+        alteracoes.push(`Ficha Técnica alterada`);
 
     registrarLog(
         `Produto editado por ${user.nome}`,
