@@ -29,20 +29,18 @@ function fazerLogin() {
     const emailDigitado = email.value.trim();
     const senhaDigitada = senha.value.trim();
 
-    // Validação básica
     if (!emailDigitado || !senhaDigitada) {
         msg.innerHTML = "<div class='alert alert-warning'>Preencha todos os campos.</div>";
         return;
     }
 
-    const ok = login(emailDigitado, senhaDigitada);
+    const autenticado = login(emailDigitado, senhaDigitada);
 
-    if (!ok) {
+    if (!autenticado) {
         msg.innerHTML = "<div class='alert alert-danger'>Credenciais inválidas.</div>";
         return;
     }
 
-    // Redireciona para a página inicial
     window.location.href = "inicio.html";
 }
 </script>
