@@ -145,7 +145,7 @@ function registrarLog(acao, detalhes) {
 }
 
 // ============================================================
-// PRODUTOS (AGORA COM FICHA TÉCNICA)
+// PRODUTOS (COM FICHA TÉCNICA)
 // ============================================================
 
 function criarProduto(nome, categoria, preco, estoqueMinimo, fichaTecnica = []) {
