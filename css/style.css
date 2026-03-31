@@ -17,6 +17,11 @@
     --green: #43A047;
 }
 
+/* Transições suaves em todo o sistema */
+* {
+    transition: 0.15s ease-in-out;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -125,6 +130,13 @@ header .logout {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    cursor: pointer;
+    transform: translateY(0);
+}
+
+.card:hover {
+    background: #222;
+    transform: translateY(-3px);
 }
 
 .card .title {
@@ -194,15 +206,17 @@ tbody tr:hover {
 input, select, textarea {
     width: 100%;
     padding: 10px;
-    background: #1A1A1A;
+    background: #141414;
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-size: 14px;
     outline: none;
+    border-radius: 4px;
 }
 
 input:focus, select:focus, textarea:focus {
     border-color: var(--blue);
+    box-shadow: 0 0 4px rgba(41, 121, 255, 0.4);
 }
 
 label {
@@ -222,6 +236,7 @@ button {
     cursor: pointer;
     font-size: 14px;
     color: white;
+    border-radius: 4px;
 }
 
 .btn-primary {
@@ -251,6 +266,7 @@ button {
     margin-top: 20px;
     font-size: 14px;
     border: 1px solid;
+    border-radius: 4px;
 }
 
 .alert-success {
@@ -284,5 +300,16 @@ button {
     .main {
         margin-left: 70px;
         width: calc(100% - 70px);
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar {
+        width: 60px;
+    }
+
+    .main {
+        margin-left: 60px;
+        width: calc(100% - 60px);
     }
 }
