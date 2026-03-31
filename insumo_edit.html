@@ -17,8 +17,17 @@
 <label>Categoria</label>
 <input id="categoria">
 
-<label>Quantidade</label>
-<input id="quantidade" type="number" min="0">
+<label>Quantidade em estoque</label>
+<input id="quantidade" type="number" min="0" step="0.001">
+
+<label>Unidade</label>
+<select id="unidade">
+    <option value="un">Unidade (un)</option>
+    <option value="kg">Quilo (kg)</option>
+    <option value="g">Gramas (g)</option>
+    <option value="L">Litro (L)</option>
+    <option value="ml">Mililitro (ml)</option>
+</select>
 
 <label>Validade</label>
 <input id="validade" type="date">
@@ -43,7 +52,6 @@ const id = localStorage.getItem("editInsumo");
 const lista = listar("insumos");
 const ins = lista.find(x => x.id == id);
 
-// Se não existir, volta
 if (!ins) {
     alert("Insumo não encontrado.");
     location.href = "insumos.html";
@@ -52,17 +60,18 @@ if (!ins) {
 // Preenche os campos
 nome.value = ins.nome;
 categoria.value = ins.categoria;
-quantidade.value = ins.quantidade;
-validade.value = ins.validade;
+quantidade.value = ins.estoqueAtual ?? 0;
+unidade.value = ins.unidade || "un";
+validade.value = ins.validade || "";
 
 // SALVAR ALTERAÇÕES
 function salvar() {
     const nomeInsumo = nome.value.trim();
     const categoriaInsumo = categoria.value.trim();
     const qtd = Number(quantidade.value);
+    const unidadeInsumo = unidade.value;
     const validadeInsumo = validade.value;
 
-    // Validações
     if (!nomeInsumo || !categoriaInsumo || !validadeInsumo) {
         alert("Preencha todos os campos.");
         return;
@@ -76,7 +85,8 @@ function salvar() {
     // Atualiza dados
     ins.nome = nomeInsumo;
     ins.categoria = categoriaInsumo;
-    ins.quantidade = qtd;
+    ins.estoqueAtual = qtd;
+    ins.unidade = unidadeInsumo;
     ins.validade = validadeInsumo;
 
     atualizar("insumos", ins.id, ins);
