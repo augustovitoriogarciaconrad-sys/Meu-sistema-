@@ -87,6 +87,7 @@ function carregarInsumos() {
             <td>${i.validade || "-"}</td>
             <td>
                 <button class="btn-secondary" onclick="editar(${i.id})">Editar</button>
+                <button class="btn-primary" onclick="abrirRetirada(${i.id})">Retirar</button>
                 <button class="btn-danger" onclick="excluirInsumo(${i.id})">Excluir</button>
             </td>
         </tr>`;
@@ -103,6 +104,47 @@ function excluirInsumo(id) {
 
     remover("insumos", id);
     registrarLog("Excluiu insumo", "ID " + id);
+    carregarInsumos();
+}
+
+// ABRIR RETIRADA
+function abrirRetirada(id) {
+    const qtd = prompt("Quantidade a retirar:");
+
+    if (!qtd) return;
+
+    const quantidade = Number(qtd);
+
+    if (isNaN(quantidade) || quantidade <= 0) {
+        alert("Quantidade inválida.");
+        return;
+    }
+
+    retirarInsumo(id, quantidade);
+}
+
+// RETIRAR INSUMO
+function retirarInsumo(id, quantidade) {
+    const insumos = listar("insumos");
+    const ins = insumos.find(i => i.id == id);
+
+    if (!ins) {
+        alert("Insumo não encontrado.");
+        return;
+    }
+
+    if ((ins.estoqueAtual ?? 0) < quantidade) {
+        alert("Estoque insuficiente.");
+        return;
+    }
+
+    ins.estoqueAtual -= quantidade;
+
+    atualizar("insumos", id, ins);
+
+    registrarLog("Retirou insumo", `${ins.nome} — ${quantidade} ${ins.unidade}`);
+
+    alert("Retirada registrada com sucesso!");
     carregarInsumos();
 }
 
