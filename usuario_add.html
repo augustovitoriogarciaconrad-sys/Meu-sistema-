@@ -44,6 +44,9 @@ if (!user || user.permissao !== "admin") {
     location.href = "inicio.html";
 }
 
+// LIMPA POSSÍVEL ID DE EDIÇÃO
+localStorage.removeItem("editUsuario");
+
 // SALVAR USUÁRIO
 function salvarUsuario() {
     const nomeIn = nome.value.trim();
