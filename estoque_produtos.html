@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
 
     <style>
-        /* MODAL */
         .modal {
             position: fixed;
             top: 0;
@@ -153,9 +152,15 @@ function fecharSaida() {
 function confirmarSaida() {
     const qtd = Number(saidaQtd.value);
     const motivo = saidaMotivo.value;
+    const estoqueAtual = Number(saidaProdutoEstoque.innerText);
 
     if (!qtd || qtd <= 0) {
         alert("Informe uma quantidade válida.");
+        return;
+    }
+
+    if (qtd > estoqueAtual) {
+        alert("Quantidade maior que o estoque disponível.");
         return;
     }
 
