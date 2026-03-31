@@ -26,20 +26,25 @@
 
 <script>
 function fazerLogin() {
+    msg.innerHTML = ""; // limpa mensagens anteriores
+
     const emailDigitado = email.value.trim();
     const senhaDigitada = senha.value.trim();
 
     if (!emailDigitado || !senhaDigitada) {
-        msg.innerHTML = "<div class='alert alert-warning'>Preencha todos os campos.</div>";
+        msg.innerHTML = "<p style='color:orange;'>Preencha todos os campos.</p>";
         return;
     }
 
     const autenticado = login(emailDigitado, senhaDigitada);
 
     if (!autenticado) {
-        msg.innerHTML = "<div class='alert alert-danger'>Credenciais inválidas.</div>";
+        msg.innerHTML = "<p style='color:red;'>Credenciais inválidas.</p>";
         return;
     }
+
+    // registra log de login
+    registrarLog("Login realizado", emailDigitado);
 
     window.location.href = "inicio.html";
 }
