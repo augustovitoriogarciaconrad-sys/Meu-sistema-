@@ -43,6 +43,11 @@
 const user = usuarioLogado();
 const container = document.getElementById("areaContainer");
 
+if (!user) {
+    alert("Você precisa estar logado.");
+    location.href = "index.html";
+}
+
 // Função para criar cards
 function criarCard(nome, pagina) {
     const div = document.createElement("div");
@@ -52,36 +57,37 @@ function criarCard(nome, pagina) {
     container.appendChild(div);
 }
 
-// Admin vê tudo
-if (user.permissao === "admin") {
-    criarCard("Produção", "producao.html");
-    criarCard("Estoque", "estoque_produtos.html");
-    criarCard("Produtos", "produtos.html");
-    criarCard("Insumos", "insumos.html");
-    criarCard("Relatórios", "relatorios.html");
-    criarCard("Administração", "admin.html");
-}
+// Áreas permitidas conforme permissão
+const permitidas = areasPermitidas();
 
 // Produção
-if (user.permissao === "producao") {
+if (permitidas.includes("producao")) {
     criarCard("Produção", "producao.html");
 }
 
-// Estoquista
-if (user.permissao === "estoquista") {
+// Estoque
+if (permitidas.includes("estoque")) {
     criarCard("Estoque", "estoque_produtos.html");
 }
 
-// Usuário comum
-if (user.permissao === "usuario") {
+// Produtos
+if (permitidas.includes("produtos")) {
     criarCard("Produtos", "produtos.html");
+}
+
+// Insumos
+if (permitidas.includes("insumos")) {
     criarCard("Insumos", "insumos.html");
+}
+
+// Relatórios
+if (permitidas.includes("relatorios")) {
     criarCard("Relatórios", "relatorios.html");
 }
 
-// Financeiro (se existir)
-if (user.permissao === "financeiro") {
-    criarCard("Relatórios", "relatorios.html");
+// Administração
+if (permitidas.includes("admin")) {
+    criarCard("Administração", "admin.html");
 }
 </script>
 
