@@ -29,7 +29,7 @@
 <thead>
 <tr>
     <th>Produto</th>
-    <th>Produzido</th>
+    <th>Estoque Atual</th>
     <th>Estoque Mínimo</th>
     <th>Status</th>
 </tr>
@@ -62,25 +62,21 @@ if (!permitidas.includes("admin")) document.getElementById("menuAdmin").style.di
 // LISTAGEM DO ESTOQUE
 function carregarEstoque() {
     const produtos = listar("produtos");
-    const producao = listar("producao");
-
     const tabela = document.getElementById("listaEstoque");
     tabela.innerHTML = "";
 
     produtos.forEach(p => {
-        const total = producao
-            .filter(x => x.produtoId == p.id)
-            .reduce((s, x) => s + Number(x.quantidade), 0);
+        const atual = p.estoqueAtual ?? 0;
 
         let status = "";
-        if (total <= 0) status = "<span class='status-critical'>Sem estoque</span>";
-        else if (total < p.estoqueMinimo) status = "<span class='status-warn'>Abaixo do mínimo</span>";
+        if (atual <= 0) status = "<span class='status-critical'>Sem estoque</span>";
+        else if (atual < p.estoqueMinimo) status = "<span class='status-warn'>Abaixo do mínimo</span>";
         else status = "<span class='status-ok'>OK</span>";
 
         tabela.innerHTML += `
         <tr>
             <td>${p.nome}</td>
-            <td>${total}</td>
+            <td>${atual}</td>
             <td>${p.estoqueMinimo}</td>
             <td>${status}</td>
         </tr>`;
