@@ -17,8 +17,17 @@
 <label>Categoria</label>
 <input id="categoria">
 
-<label>Quantidade</label>
-<input id="quantidade" type="number" min="0">
+<label>Quantidade inicial</label>
+<input id="quantidade" type="number" min="0" step="0.001">
+
+<label>Unidade</label>
+<select id="unidade">
+    <option value="un">Unidade (un)</option>
+    <option value="kg">Quilo (kg)</option>
+    <option value="g">Gramas (g)</option>
+    <option value="L">Litro (L)</option>
+    <option value="ml">Mililitro (ml)</option>
+</select>
 
 <label>Validade</label>
 <input id="validade" type="date">
@@ -43,9 +52,9 @@ function salvarInsumo() {
     const nomeInsumo = nome.value.trim();
     const categoriaInsumo = categoria.value.trim();
     const qtd = Number(quantidade.value);
+    const unidadeInsumo = unidade.value;
     const validadeInsumo = validade.value;
 
-    // Validações
     if (!nomeInsumo || !categoriaInsumo || !validadeInsumo) {
         alert("Preencha todos os campos.");
         return;
@@ -56,8 +65,7 @@ function salvarInsumo() {
         return;
     }
 
-    // Criar insumo
-    criarInsumo(nomeInsumo, categoriaInsumo, qtd, validadeInsumo);
+    criarInsumo(nomeInsumo, categoriaInsumo, qtd, validadeInsumo, unidadeInsumo);
     registrarLog("Criou insumo", nomeInsumo);
 
     alert("Insumo cadastrado com sucesso!");
