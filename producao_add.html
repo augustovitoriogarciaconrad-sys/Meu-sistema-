@@ -12,15 +12,12 @@
 <h2>Registrar Produção</h2>
 
 <label>Produto</label>
-<input id="produto" type="text" placeholder="Digite o nome do produto">
+<select id="produto"></select>
 
-<label>Quantidade</label>
+<label>Quantidade produzida</label>
 <input id="quantidade" type="number" min="1">
 
-<label>Custo Total</label>
-<input id="custo" type="number" min="0" step="0.01">
-
-<button class="btn-primary" onclick="salvar()">Salvar</button>
+<button class="btn-primary" onclick="salvar()">Registrar</button>
 <button class="btn-secondary" onclick="history.back()">Cancelar</button>
 
 </div>
@@ -35,14 +32,23 @@ if (!user || (user.permissao !== "producao" && user.permissao !== "admin")) {
     location.href = "inicio.html";
 }
 
-// SALVAR PRODUÇÃO
-function salvar() {
-    const nomeProduto = produto.value.trim();
-    const qtd = Number(quantidade.value);
-    const custoTotal = Number(custo.value);
+// CARREGAR PRODUTOS NO SELECT
+window.onload = () => {
+    const produtos = listar("produtos");
+    const select = document.getElementById("produto");
 
-    if (!nomeProduto) {
-        alert("Digite o nome do produto.");
+    produtos.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">${p.nome}</option>`;
+    });
+};
+
+// SALVAR PRODUÇÃO REAL
+function salvar() {
+    const idProduto = Number(produto.value);
+    const qtd = Number(quantidade.value);
+
+    if (!idProduto) {
+        alert("Selecione um produto.");
         return;
     }
 
@@ -51,13 +57,21 @@ function salvar() {
         return;
     }
 
-    if (!custoTotal || custoTotal <= 0) {
-        alert("Informe um custo válido.");
-        return;
-    }
+    // PRODUÇÃO REAL (consome insumos + aumenta estoque)
+    produzirProduto(idProduto, qtd);
 
-    registrarProducao(nomeProduto, qtd, custoTotal);
-    registrarLog("Registrou produção", `Produto: ${nomeProduto}, Qtd: ${qtd}`);
+    // REGISTRO PARA HISTÓRICO
+    const produtos = listar("produtos");
+    const prod = produtos.find(p => p.id === idProduto);
+
+    adicionar("producao", {
+        id: Date.now(),
+        produto: prod.nome,
+        quantidade: qtd,
+        data: new Date().toLocaleDateString("pt-BR")
+    });
+
+    registrarLog("Produção registrada", `${prod.nome} — ${qtd} unidades`);
 
     alert("Produção registrada com sucesso!");
     location.href = "producao.html";
