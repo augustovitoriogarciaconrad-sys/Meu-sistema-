@@ -87,7 +87,32 @@
 
 <script src="js/app.js"></script>
 
-<script>
+<script
+    function entradaProduto(id, quantidade) {
+    const produtos = listar("produtos");
+    const prod = produtos.find(p => p.id == id);
+
+    prod.estoqueAtual = (prod.estoqueAtual ?? 0) + quantidade;
+    atualizar("produtos", id, prod);
+
+    const log = {
+        data: new Date().toLocaleString(),
+        produto: prod.nome,
+        tipo: "Entrada",
+        quantidade: "+" + quantidade,
+        motivo: "Reposição",
+        usuario: user.nome
+    };
+
+    let historico = listar("historico_produtos");
+    historico.push(log);
+    salvar("historico_produtos", historico);
+
+    registrarLog("Entrada de produto", `${prod.nome} — +${quantidade}`);
+
+    alert("Entrada registrada com sucesso!");
+    carregarEstoque();
+}
 // BLOQUEIO — SOMENTE ESTOQUISTA OU ADMIN
 const user = usuarioLogado();
 if (!user || (user.permissao !== "estoquista" && user.permissao !== "admin")) {
