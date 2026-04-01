@@ -70,7 +70,7 @@ function logout() {
 }
 
 // ============================================================
-// CRIAÇÃO DE USUÁRIOS
+// CRIAÇÃO DE USUÁRIOS (compatibilidade)
 // ============================================================
 
 function criarUsuario(nome, email, senha, permissao) {
@@ -89,7 +89,6 @@ function criarUsuario(nome, email, senha, permissao) {
     usuarios.push(novo);
     salvar("usuarios", usuarios);
 
-    registrarLog("Criou usuário", email);
     return true;
 }
 
