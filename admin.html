@@ -254,7 +254,48 @@ function preencherFiltrosRetiradas() {
     usuarios.forEach(u => selUsuario.innerHTML += `<option value="${u}">${u}</option>`);
     insumos.forEach(i => selInsumo.innerHTML += `<option value="${i}">${i}</option>`);
 }
+/* ============================================================
+   HISTÓRICO DE ENTRADAS E SAÍDAS DE PRODUTOS
+============================================================ */
 
+function carregarHistoricoProdutos() {
+    const historico = listar("historico_produtos").reverse();
+    const tabela = document.getElementById("listaHistoricoProdutos");
+    tabela.innerHTML = "";
+
+    if (historico.length === 0) {
+        tabela.innerHTML = `<tr><td colspan="6">Nenhum registro encontrado.</td></tr>`;
+        return;
+    }
+
+    historico.forEach(h => {
+        tabela.innerHTML += `
+        <tr>
+            <td>${h.data}</td>
+            <td>${h.produto}</td>
+            <td>${h.tipo}</td>
+            <td>${h.quantidade}</td>
+            <td>${h.motivo}</td>
+            <td>${h.usuario}</td>
+        </tr>`;
+    });
+}
+<h3 style="margin-top:40px;">Histórico de Entradas e Saídas de Produtos</h3>
+
+<table>
+<thead>
+<tr>
+    <th>Data</th>
+    <th>Produto</th>
+    <th>Tipo</th>
+    <th>Quantidade</th>
+    <th>Motivo</th>
+    <th>Usuário</th>
+</tr>
+</thead>
+<tbody id="listaHistoricoProdutos"></tbody>
+</table>
+carregarHistoricoProdutos();
 carregarUsuarios();
 carregarLogs();
 preencherFiltrosRetiradas();
