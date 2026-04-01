@@ -79,16 +79,30 @@ function carregarProducao() {
     });
 }
 
-// EXCLUSÃO — DEVOLVE ESTOQUE
+// EXCLUSÃO — DEVOLVE ESTOQUE + REGISTRA HISTÓRICO
 function excluirProducao(id, idProduto, quantidade) {
     if (!confirm("Deseja realmente excluir esta produção?")) return;
 
-    // devolve estoque
     const produtos = listar("produtos");
     const produto = produtos.find(p => p.id === idProduto);
+
     if (produto) {
         produto.estoqueAtual -= quantidade;
         salvar("produtos", produtos);
+
+        // REGISTRA NO HISTÓRICO DE PRODUTOS
+        const log = {
+            data: new Date().toLocaleString(),
+            produto: produto.nome,
+            tipo: "Estorno de Produção",
+            quantidade: "-" + quantidade,
+            motivo: "Exclusão de produção",
+            usuario: user.nome
+        };
+
+        let historico = listar("historico_produtos");
+        historico.push(log);
+        salvar("historico_produtos", historico);
     }
 
     remover("producao", id);
