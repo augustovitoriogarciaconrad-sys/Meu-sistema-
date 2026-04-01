@@ -42,7 +42,7 @@ window.onload = () => {
     });
 };
 
-// SALVAR PRODUÇÃO REAL
+// SALVAR PRODUÇÃO
 function salvar() {
     const idProduto = Number(produto.value);
     const qtd = Number(quantidade.value);
@@ -57,13 +57,19 @@ function salvar() {
         return;
     }
 
-    // PRODUÇÃO REAL (consome insumos + aumenta estoque)
-    produzirProduto(idProduto, qtd);
-
-    // REGISTRO PARA HISTÓRICO COMPLETO
+    // ATUALIZA ESTOQUE DO PRODUTO
     const produtos = listar("produtos");
     const prod = produtos.find(p => p.id === idProduto);
 
+    if (!prod) {
+        alert("Produto não encontrado.");
+        return;
+    }
+
+    prod.estoqueAtual = (prod.estoqueAtual ?? 0) + qtd;
+    salvar("produtos", produtos);
+
+    // REGISTRA PRODUÇÃO
     adicionar("producao", {
         id: Date.now(),
         idProduto: idProduto,
@@ -72,6 +78,7 @@ function salvar() {
         data: new Date().toLocaleString("pt-BR")
     });
 
+    // LOG
     registrarLog("Produção registrada", `${prod.nome} — ${qtd} unidades`);
 
     alert("Produção registrada com sucesso!");
@@ -81,4 +88,3 @@ function salvar() {
 
 </body>
 </html>
-
