@@ -65,15 +65,16 @@ function salvarUsuario() {
         return;
     }
 
-    const criado = criarUsuario(nomeIn, emailIn, senhaIn, permissaoIn);
+    adicionar("usuarios", {
+        nome: nomeIn,
+        email: emailIn,
+        senha: senhaIn,
+        permissao: permissaoIn
+    });
 
-    if (criado) {
-        registrarLog("Criou usuário", emailIn);
-        alert("Usuário cadastrado com sucesso!");
-        location.href = "admin.html";
-    } else {
-        alert("Erro ao criar usuário.");
-    }
+    registrarLog("Criou usuário", emailIn);
+    alert("Usuário cadastrado com sucesso!");
+    location.href = "admin.html";
 }
 </script>
 
