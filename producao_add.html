@@ -44,8 +44,8 @@ window.onload = () => {
 
 // SALVAR PRODUÇÃO
 function salvar() {
-    const idProduto = Number(produto.value);
-    const qtd = Number(quantidade.value);
+    const idProduto = Number(document.getElementById("produto").value);
+    const qtd = Number(document.getElementById("quantidade").value);
 
     if (!idProduto) {
         alert("Selecione um produto.");
@@ -78,7 +78,6 @@ function salvar() {
         data: new Date().toLocaleString("pt-BR")
     });
 
-    // LOG
     registrarLog("Produção registrada", `${prod.nome} — ${qtd} unidades`);
 
     alert("Produção registrada com sucesso!");
