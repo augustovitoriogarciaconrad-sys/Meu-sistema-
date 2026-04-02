@@ -31,14 +31,15 @@
 <script src="js/app.js"></script>
 
 <script>
+// SALVAR PRODUTO
 function salvarProduto() {
 
-    const nomeProduto = nome.value.trim();
-    const categoriaProduto = categoria.value.trim();
-    const precoProduto = Number(preco.value);
-    const estoqueMin = Number(estoqueMinimo.value);
+    const nomeProduto = document.getElementById("nome").value.trim();
+    const categoriaProduto = document.getElementById("categoria").value.trim();
+    const precoProduto = Number(document.getElementById("preco").value);
+    const estoqueMin = Number(document.getElementById("estoqueMinimo").value);
 
-    // VALIDAÇÃO COMPLETA
+    // VALIDAÇÃO
     if (!nomeProduto) {
         alert("Digite o nome do produto.");
         return;
@@ -50,12 +51,12 @@ function salvarProduto() {
     }
 
     if (isNaN(precoProduto) || precoProduto < 0) {
-        alert("Informe um preço válido (não pode ser negativo).");
+        alert("Informe um preço válido.");
         return;
     }
 
     if (isNaN(estoqueMin) || estoqueMin < 0) {
-        alert("Informe um estoque mínimo válido (não pode ser negativo).");
+        alert("Informe um estoque mínimo válido.");
         return;
     }
 
@@ -66,19 +67,20 @@ function salvarProduto() {
         return;
     }
 
-    // CRIAR PRODUTO
+    // CRIAR PRODUTO (com ficha técnica vazia)
     criarProduto(
         nomeProduto,
         categoriaProduto,
         precoProduto,
-        estoqueMin
+        estoqueMin,
+        [] // ficha técnica vazia
     );
 
-    // AUDITORIA
+    // LOG
     const user = usuarioLogado();
     registrarLog(
-        `Produto criado por ${user.nome}`,
-        `Nome: ${nomeProduto}, Categoria: ${categoriaProduto}, Preço: ${precoProduto}, Estoque Mínimo: ${estoqueMin}`
+        "Criou produto",
+        `${user.nome} criou o produto ${nomeProduto}`
     );
 
     alert("Produto cadastrado com sucesso!");
